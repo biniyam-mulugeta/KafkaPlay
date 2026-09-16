@@ -15,6 +15,7 @@ from app.api.v1 import brokers as broker_routes
 from app.api.v1 import clusters as cluster_routes
 from app.api.v1 import groups as group_routes
 from app.api.v1 import health as health_routes
+from app.api.v1 import messages as message_routes
 from app.api.v1 import meta as meta_routes
 from app.api.v1 import topics as topic_routes
 from app.auth.rbac import AuthorizationError, ReadOnlyError
@@ -26,6 +27,7 @@ from app.config import Settings, load_settings
 from app.kafka.gates import GateRegistry
 from app.logging import configure_logging, get_logger
 from app.store.session import create_db_engine, init_db
+from app.ws import tail as tail_routes
 
 log = get_logger(__name__)
 
@@ -173,7 +175,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     v1.include_router(broker_routes.router)
     v1.include_router(topic_routes.router)
     v1.include_router(group_routes.router)
+    v1.include_router(message_routes.router)
     app.include_router(v1)
+
+    # WebSockets live outside /api/v1 so the SPA catch-all never shadows them.
+    app.include_router(tail_routes.router)
 
     _register_exception_handlers(app)
     _mount_frontend(app, settings)

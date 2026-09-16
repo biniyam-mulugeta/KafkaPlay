@@ -10,6 +10,7 @@ implementations.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import uuid
 from collections.abc import Iterator
@@ -53,10 +54,8 @@ def seeded_topic(bootstrap_servers: str) -> Iterator[str]:
 
     yield name
 
-    try:
+    with contextlib.suppress(Exception):
         admin.delete_topics([name])[name].result(timeout=30)
-    except Exception:
-        pass
 
 
 class TestClusterDescription:
@@ -114,9 +113,7 @@ class TestTopics:
         # Watermark arithmetic must match what was actually produced.
         assert detail.message_count == MESSAGES
 
-    async def test_every_partition_has_a_leader(
-        self, gate: KafkaGate, seeded_topic: str
-    ) -> None:
+    async def test_every_partition_has_a_leader(self, gate: KafkaGate, seeded_topic: str) -> None:
         detail = await gate.describe_topic(seeded_topic)
         for partition in detail.partitions:
             assert partition.leader is not None
@@ -170,15 +167,11 @@ class TestConsumerGroupsAndLag:
 
         yield group_id
 
-        try:
+        with contextlib.suppress(Exception):
             admin = AdminClient({"bootstrap.servers": bootstrap_servers})
             admin.delete_consumer_groups([group_id])[group_id].result(timeout=30)
-        except Exception:
-            pass
 
-    async def test_group_appears_in_listing(
-        self, gate: KafkaGate, committed_group: str
-    ) -> None:
+    async def test_group_appears_in_listing(self, gate: KafkaGate, committed_group: str) -> None:
         assert committed_group in [group.group_id for group in await gate.list_groups()]
 
     async def test_lag_is_positive_and_bounded(

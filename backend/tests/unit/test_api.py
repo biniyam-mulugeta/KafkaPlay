@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.config import Settings
@@ -229,3 +230,54 @@ class TestOpenApi:
 
     def test_docs_are_served(self, client: TestClient) -> None:
         assert client.get("/api/docs").status_code == 200
+
+
+class TestCsrfOnGuardedWrites:
+    """CSRF enforcement on a real mutating endpoint.
+
+    M1 could only test the primitive, because no guarded write existed yet.
+    /messages/search is a POST behind get_principal, so it exercises the
+    double-submit check end to end.
+    """
+
+    @pytest.fixture
+    def configured(self, settings: Settings) -> Settings:
+        settings.clusters_file.write_text(
+            "clusters:\n  - name: local\n    bootstrap_servers: 127.0.0.1:1\n",
+            encoding="utf-8",
+        )
+        return settings
+
+    def _login(self, client: TestClient) -> str:
+        response = client.post(
+            "/api/v1/auth/login",
+            json={"username": "admin", "password": TEST_ADMIN_PASSWORD},
+        )
+        assert response.status_code == 200
+        return str(response.json()["csrf_token"])
+
+    def test_post_without_csrf_header_is_rejected(self, client: TestClient) -> None:
+        self._login(client)
+        response = client.post("/api/v1/clusters/local/messages/search", json={"topic": "anything"})
+        assert response.status_code == 403
+        assert "CSRF" in response.json()["detail"]
+
+    def test_post_with_wrong_csrf_header_is_rejected(self, client: TestClient) -> None:
+        self._login(client)
+        response = client.post(
+            "/api/v1/clusters/local/messages/search",
+            json={"topic": "anything"},
+            headers={"X-CSRF-Token": "not-the-right-token"},
+        )
+        assert response.status_code == 403
+
+    def test_post_with_correct_csrf_header_passes_the_check(self, client: TestClient) -> None:
+        token = self._login(client)
+        response = client.post(
+            "/api/v1/clusters/local/messages/search",
+            json={"topic": "anything"},
+            headers={"X-CSRF-Token": token},
+        )
+        # 404 because no cluster named "local" is configured in this fixture --
+        # the point is that it got past CSRF rather than being refused at 403.
+        assert response.status_code != 403

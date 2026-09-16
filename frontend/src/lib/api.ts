@@ -197,6 +197,57 @@ export interface ReplicationResponse {
   degraded: Degraded | null
 }
 
+
+// --- M3: messages ---------------------------------------------------------
+
+export type PayloadFormat = 'null' | 'json' | 'avro' | 'protobuf' | 'text' | 'binary'
+export type StartFrom = 'newest' | 'oldest' | 'offset' | 'timestamp'
+export type StopReason =
+  | 'completed' | 'max_results' | 'scanned_budget' | 'time_budget' | 'cancelled' | 'error'
+
+export interface Payload {
+  format: PayloadFormat
+  value: unknown
+  size_bytes: number
+  schema_id: number | null
+  error: string | null
+}
+
+export interface KafkaMessage {
+  topic: string
+  partition: number
+  offset: number
+  timestamp: number | null
+  timestamp_type: string | null
+  key: Payload
+  value: Payload
+  headers: Record<string, string>
+  masked: boolean
+}
+
+export interface SearchResponse {
+  messages: KafkaMessage[]
+  scanned: number
+  elapsed_seconds: number
+  stop_reason: StopReason
+  partitions_scanned: number[]
+  format_counts: Record<string, number>
+  masking_enabled: boolean
+  filter_error: string | null
+}
+
+export interface SearchParams {
+  topic: string
+  partitions?: number[] | null
+  start_from?: StartFrom
+  offset?: number | null
+  timestamp_ms?: number | null
+  filter?: string | null
+  max_results?: number
+  max_scanned?: number
+  max_seconds?: number
+}
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -317,5 +368,18 @@ export const api = {
   group: (cluster: string, groupId: string) =>
     request<GroupDetail>(
       `/clusters/${encodeURIComponent(cluster)}/consumer-groups/${encodeURIComponent(groupId)}`,
+    ),
+
+  searchMessages: (cluster: string, params: SearchParams, signal?: AbortSignal) =>
+    request<SearchResponse>(`/clusters/${encodeURIComponent(cluster)}/messages/search`, {
+      method: 'POST',
+      body: JSON.stringify(params),
+      signal,
+    }),
+
+  validateFilter: (cluster: string, filter: string) =>
+    request<{ valid: boolean; error: string | null }>(
+      `/clusters/${encodeURIComponent(cluster)}/messages/validate-filter`,
+      { method: 'POST', body: JSON.stringify({ filter }) },
     ),
 }

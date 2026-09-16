@@ -41,9 +41,7 @@ class TestInternalTopics:
 
 class TestClientConfig:
     def test_plaintext_minimal(self) -> None:
-        config = build_client_config(
-            ClusterConfig(name="c", bootstrap_servers="broker:9092"), 10.0
-        )
+        config = build_client_config(ClusterConfig(name="c", bootstrap_servers="broker:9092"), 10.0)
         assert config["bootstrap.servers"] == "broker:9092"
         assert config["security.protocol"] == "PLAINTEXT"
         assert "sasl.username" not in config
@@ -53,9 +51,7 @@ class TestClientConfig:
             name="c",
             bootstrap_servers="b:9093",
             security_protocol=SecurityProtocol.SASL_SSL,
-            sasl=SaslConfig(
-                mechanism=SaslMechanism.SCRAM_SHA_512, username="u", password="p"
-            ),
+            sasl=SaslConfig(mechanism=SaslMechanism.SCRAM_SHA_512, username="u", password="p"),
             tls=TlsConfig(ca_location="/certs/ca.pem"),
         )
         config = build_client_config(cluster, 10.0)
@@ -81,9 +77,7 @@ class TestClientConfig:
         assert config["sasl.oauthbearer.token.endpoint.url"] == "https://idp/token"
 
     def test_timeout_is_applied_in_milliseconds(self) -> None:
-        config = build_client_config(
-            ClusterConfig(name="c", bootstrap_servers="b:9092"), 7.5
-        )
+        config = build_client_config(ClusterConfig(name="c", bootstrap_servers="b:9092"), 7.5)
         assert config["socket.timeout.ms"] == 7500
 
 

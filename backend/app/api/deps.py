@@ -117,7 +117,15 @@ def require_admin(principal: PrincipalDep) -> Principal:
 AdminDep = Annotated[Principal, Depends(require_admin)]
 
 
-def resolve_cluster(cluster: str, registry: RegistryDep) -> str:
+def resolve_cluster(
+    cluster: str,
+    registry: RegistryDep,
+    # Depending on the principal here forces authentication to resolve BEFORE
+    # the cluster lookup. Without it, FastAPI may run this first and answer
+    # 404 for an unknown cluster but 401 for a real one, letting an
+    # unauthenticated caller enumerate configured cluster names.
+    _principal: PrincipalDep,
+) -> str:
     """Validate the {cluster} path parameter, returning its name.
 
     The argument name must match the path parameter exactly, or FastAPI treats
