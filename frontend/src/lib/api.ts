@@ -388,6 +388,61 @@ export interface ReplayResponse {
   applied: boolean
 }
 
+
+// --- M6: alerts -----------------------------------------------------------
+
+export type AlertKind =
+  | 'lag_above' | 'lag_velocity' | 'under_replicated'
+  | 'offline_partitions' | 'broker_down' | 'throughput_zero'
+export type AlertSeverity = 'info' | 'warning' | 'critical'
+export type AlertState = 'ok' | 'firing'
+
+export interface AlertRule {
+  id: number
+  name: string
+  cluster: string
+  kind: AlertKind
+  severity: AlertSeverity
+  enabled: boolean
+  topic: string | null
+  group_id: string | null
+  threshold: number
+  for_seconds: number
+  cooldown_seconds: number
+  notify_webhook: boolean
+  notify_slack: boolean
+  notify_teams: boolean
+  notify_email: string | null
+  state: AlertState
+  since: string | null
+  last_value: number | null
+  created_by: string
+}
+
+export interface AlertFiring {
+  id: number
+  rule_id: number
+  rule_name: string
+  cluster: string
+  severity: AlertSeverity
+  state: AlertState
+  at: string
+  value: number | null
+  message: string
+  acknowledged_at: string | null
+  acknowledged_by: string | null
+  notified: boolean
+  notify_error: string | null
+}
+
+export interface AlertKindInfo {
+  kind: AlertKind
+  label: string
+  needs_group: boolean
+  needs_topic: boolean
+  threshold_hint: string
+}
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -655,6 +710,33 @@ export const api = {
   },
 
   auditActions: () => request<{ actions: string[] }>('/audit/actions'),
+
+  alertRules: () =>
+    request<{ rules: AlertRule[]; notifications_configured: boolean }>('/alerts/rules'),
+
+  alertKinds: () => request<AlertKindInfo[]>('/alerts/kinds'),
+
+  createAlertRule: (body: Record<string, unknown>) =>
+    request<AlertRule>('/alerts/rules', { method: 'POST', body: JSON.stringify(body) }),
+
+  updateAlertRule: (id: number, body: Record<string, unknown>) =>
+    request<AlertRule>(`/alerts/rules/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+
+  deleteAlertRule: (id: number) =>
+    request<void>(`/alerts/rules/${id}`, { method: 'DELETE' }),
+
+  alertFirings: (days = 7, onlyUnacknowledged = false) =>
+    request<{ firings: AlertFiring[]; unacknowledged: number }>(
+      `/alerts/firings?days=${days}&only_unacknowledged=${onlyUnacknowledged}`,
+    ),
+
+  acknowledgeFiring: (id: number) =>
+    request<void>(`/alerts/firings/${id}/acknowledge`, { method: 'POST' }),
+
+  testNotification: () =>
+    request<{ results: Record<string, string> }>('/alerts/test-notification', {
+      method: 'POST',
+    }),
 
   users: () => request<{ users: AppUser[] }>('/users'),
 

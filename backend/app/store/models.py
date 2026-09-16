@@ -121,3 +121,83 @@ class TopicOffsetSample(SQLModel, table=True):
     partition: int
     low_watermark: int | None = Field(default=None)
     high_watermark: int | None = Field(default=None)
+
+
+class AlertKind(StrEnum):
+    """What a rule watches.
+
+    All of these are answerable from the built-in sampler and AdminClient, so
+    alerting works without Prometheus, same as the charts.
+    """
+
+    LAG_ABOVE = "lag_above"
+    LAG_VELOCITY = "lag_velocity"
+    UNDER_REPLICATED = "under_replicated"
+    OFFLINE_PARTITIONS = "offline_partitions"
+    BROKER_DOWN = "broker_down"
+    THROUGHPUT_ZERO = "throughput_zero"
+
+
+class AlertSeverity(StrEnum):
+    INFO = "info"
+    WARNING = "warning"
+    CRITICAL = "critical"
+
+
+class AlertState(StrEnum):
+    OK = "ok"
+    FIRING = "firing"
+
+
+class AlertRule(SQLModel, table=True):
+    __tablename__ = "alert_rules"
+
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    cluster: str = Field(index=True)
+    kind: AlertKind
+    severity: AlertSeverity = Field(default=AlertSeverity.WARNING)
+    enabled: bool = Field(default=True)
+
+    # Scope. Empty means "any".
+    topic: str | None = Field(default=None)
+    group_id: str | None = Field(default=None)
+
+    threshold: float = Field(default=0.0)
+    # How long the condition must hold before firing, so a single noisy
+    # sample does not page anyone.
+    for_seconds: int = Field(default=60)
+    # Minimum gap between notifications while a rule stays firing.
+    cooldown_seconds: int = Field(default=900)
+
+    notify_webhook: bool = Field(default=False)
+    notify_slack: bool = Field(default=False)
+    notify_teams: bool = Field(default=False)
+    notify_email: str | None = Field(default=None)
+
+    state: AlertState = Field(default=AlertState.OK)
+    since: datetime | None = Field(default=None)
+    last_notified_at: datetime | None = Field(default=None)
+    last_value: float | None = Field(default=None)
+    created_at: datetime = Field(default_factory=utcnow)
+    created_by: str = Field(default="system")
+
+
+class AlertFiring(SQLModel, table=True):
+    """History of state changes, so an operator can see what happened."""
+
+    __tablename__ = "alert_firings"
+
+    id: int | None = Field(default=None, primary_key=True)
+    rule_id: int = Field(index=True)
+    rule_name: str
+    cluster: str = Field(index=True)
+    severity: AlertSeverity
+    state: AlertState
+    at: datetime = Field(default_factory=utcnow, index=True)
+    value: float | None = Field(default=None)
+    message: str = Field(default="")
+    acknowledged_at: datetime | None = Field(default=None)
+    acknowledged_by: str | None = Field(default=None)
+    notified: bool = Field(default=False)
+    notify_error: str | None = Field(default=None)

@@ -130,6 +130,26 @@ class Settings(BaseSettings):
     # --- Privacy ------------------------------------------------------------
     masking_enabled: bool = Field(default=True)
 
+    # --- Notifications (all optional, unconfigured by default) --------------
+    webhook_url: str | None = Field(default=None)
+    webhook_secret: str | None = Field(
+        default=None,
+        description="Signs the webhook body with HMAC-SHA256 so receivers can verify it.",
+    )
+    slack_webhook_url: str | None = Field(default=None)
+    teams_webhook_url: str | None = Field(default=None)
+
+    smtp_host: str | None = Field(default=None)
+    smtp_port: int = Field(default=587, ge=1, le=65535)
+    smtp_username: str | None = Field(default=None)
+    smtp_password: str | None = Field(default=None)
+    smtp_from: str | None = Field(default=None)
+    smtp_default_to: str | None = Field(default=None)
+    smtp_starttls: bool = Field(default=True)
+
+    alerts_enabled: bool = Field(default=True)
+    alert_interval_seconds: int = Field(default=30, ge=5)
+
     # --- Logging ------------------------------------------------------------
     log_level: str = Field(default="INFO")
     log_format: LogFormat = Field(default=LogFormat.JSON)

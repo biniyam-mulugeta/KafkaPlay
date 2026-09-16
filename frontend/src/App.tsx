@@ -8,6 +8,7 @@ import { ConsumerGroups } from '@/pages/ConsumerGroups'
 import { GroupDetail } from '@/pages/GroupDetail'
 import { Login } from '@/pages/Login'
 import { Messages } from '@/pages/Messages'
+import { Alerts } from '@/pages/Alerts'
 import { Audit } from '@/pages/Audit'
 import { Metrics } from '@/pages/Metrics'
 import { Settings } from '@/pages/Settings'
@@ -50,7 +51,7 @@ export function App() {
             <Route path="flow-map" element={<Placeholder titleKey="nav.flowMap" milestone="M7" />} />
             <Route path="schemas" element={<Placeholder titleKey="nav.schemas" milestone="M8" />} />
             <Route path="acls" element={<Placeholder titleKey="nav.acls" milestone="M8" />} />
-            <Route path="alerts" element={<Placeholder titleKey="nav.alerts" milestone="M6" />} />
+            <Route path="alerts" element={<Alerts />} />
             <Route path="audit" element={<Audit />} />
             <Route path="settings" element={<Settings />} />
             <Route path="404" element={<NotFound />} />

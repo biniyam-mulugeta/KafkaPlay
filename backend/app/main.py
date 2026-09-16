@@ -10,7 +10,10 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import __version__
+from app.alerts.evaluator import AlertEvaluator
+from app.alerts.notify import Notifier
 from app.api.v1 import admin as admin_routes
+from app.api.v1 import alerts as alert_routes
 from app.api.v1 import audit as audit_routes
 from app.api.v1 import auth as auth_routes
 from app.api.v1 import brokers as broker_routes
@@ -81,6 +84,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         sampler.start()
         app.state.sampler = sampler
 
+    app.state.notifier = Notifier(settings)
+    app.state.alerts = None
+    if settings.alerts_enabled:
+        evaluator = AlertEvaluator(
+            engine,
+            app.state.gates,
+            registry,
+            app.state.notifier,
+            interval_seconds=settings.alert_interval_seconds,
+        )
+        evaluator.start()
+        app.state.alerts = evaluator
+
     if settings.is_no_auth:
         log.warning(
             "authentication_disabled",
@@ -101,6 +117,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     yield
 
+    if app.state.alerts is not None:
+        await app.state.alerts.stop()
     if app.state.sampler is not None:
         await app.state.sampler.stop()
     app.state.gates.close()
@@ -200,6 +218,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     v1.include_router(metric_routes.router)
     v1.include_router(admin_routes.router)
     v1.include_router(produce_routes.router)
+    v1.include_router(alert_routes.router)
     v1.include_router(audit_routes.router)
     v1.include_router(user_routes.router)
     app.include_router(v1)
