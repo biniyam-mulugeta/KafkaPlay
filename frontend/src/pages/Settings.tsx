@@ -10,6 +10,8 @@ import { DataTable, type Column } from '@/components/table/DataTable'
 import { EmptyState, TableSkeleton } from '@/components/states/EmptyState'
 import { StatusPill } from '@/components/states/StatusPill'
 import { useSession } from '@/lib/session'
+import { AddClusterForm } from '@/components/admin/AddClusterForm'
+import { useCluster } from '@/lib/cluster'
 
 const ROLES: Role[] = ['viewer', 'operator', 'admin']
 
@@ -299,6 +301,49 @@ function UserAdmin() {
   )
 }
 
+function ClusterList() {
+  const { t } = useTranslation()
+  const { clusters } = useCluster()
+  const queryClient = useQueryClient()
+  const [error, setError] = useState<string | null>(null)
+
+  const remove = useMutation({
+    mutationFn: (name: string) => api.removeCluster(name),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['clusters'] }),
+    onError: (caught) =>
+      setError(caught instanceof ApiError ? caught.message : String(caught)),
+  })
+
+  if (clusters.length === 0) return null
+
+  return (
+    <div className="space-y-2">
+      {error && <Banner tone="warn" title={t('errors.genericTitle')}>{error}</Banner>}
+      <ul className="divide-y divide-subtle rounded-lg border border-subtle bg-surface">
+        {clusters.map((cluster) => (
+          <li key={cluster.name} className="flex items-center gap-3 px-3 py-2">
+            <span className="text-sm text-body">{cluster.label}</span>
+            <span className="font-mono text-[11px] text-faint">{cluster.security_protocol}</span>
+            {cluster.read_only && (
+              <span className="rounded border border-warn px-1.5 py-0.5 text-[10px] text-warn">
+                {t('clusters.readOnly')}
+              </span>
+            )}
+            <div className="flex-1" />
+            <button
+              type="button"
+              onClick={() => remove.mutate(cluster.name)}
+              className="text-xs text-critical hover:underline"
+            >
+              {t('addCluster.remove')}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 export function Settings() {
   const { t } = useTranslation()
   const { meta, me } = useSession()
@@ -329,6 +374,14 @@ export function Settings() {
         </dl>
         <p className="text-[11px] text-faint">{t('settings.configHint')}</p>
       </section>
+
+      {me?.role === 'admin' && (
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold text-body">{t('addCluster.yours')}</h2>
+          <ClusterList />
+          <AddClusterForm />
+        </section>
+      )}
 
       <ChangeOwnPassword />
 

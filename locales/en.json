@@ -40,7 +40,16 @@
     "subtitle": "Sign in to continue to {{product}}.",
     "invalid": "Invalid username or password.",
     "unavailable": "The console is not reachable. Check that the backend is running.",
-    "submitting": "Signing in…"
+    "submitting": "Signing in…",
+    "createAccount": "Create account",
+    "creating": "Creating…",
+    "confirmPassword": "Confirm password",
+    "passwordsDiffer": "Those passwords do not match.",
+    "passwordRule": "At least 12 characters.",
+    "firstUserHint": "No accounts exist yet. The first one you create becomes the administrator.",
+    "registerHint": "Create an account to continue.",
+    "haveAccount": "Already have an account? Sign in",
+    "needAccount": "Need an account? Register"
   },
   "banner": {
     "noAuthTitle": "Authentication is disabled",
@@ -487,5 +496,27 @@
     "none": "No ACLs defined",
     "noneHelp": "This cluster has an authorizer but no entries yet.",
     "notAvailable": "ACLs are not available on this cluster"
+  },
+  "addCluster": {
+    "title": "Add a cluster",
+    "name": "Name",
+    "bootstrap": "Bootstrap servers",
+    "security": "Security",
+    "mechanism": "SASL mechanism",
+    "registry": "Schema Registry URL (optional)",
+    "readOnly": "Read-only (blocks every write, even for admins)",
+    "test": "Test connection",
+    "testing": "Testing…",
+    "add": "Add cluster",
+    "adding": "Adding…",
+    "testFirst": "Test the connection before adding.",
+    "reachable": "Connected",
+    "unreachable": "Could not connect",
+    "reachableDetail": "{{brokers}} broker(s), {{topics}} topic(s).",
+    "noneTitle": "No cluster configured yet",
+    "noneBody": "Add one below to start browsing topics, or set KAFKA_BOOTSTRAP_SERVERS and restart.",
+    "yours": "Clusters",
+    "remove": "Remove",
+    "fromFile": "from clusters.yaml"
   }
 }

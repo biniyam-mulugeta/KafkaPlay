@@ -14,7 +14,8 @@ from typing import Any
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from app.api.deps import SettingsDep
+from app.api.deps import DbDep, RegistryDep, SettingsDep
+from app.api.v1.auth import signup_availability
 from app.clusters.models import MaskPreset
 from app.config import AuthMode
 
@@ -53,6 +54,9 @@ class MetaResponse(BaseModel):
     sampler_enabled: bool
     default_locale: str
     available_locales: list[str]
+    signup_available: bool
+    signup_is_first_user: bool
+    cluster_count: int
     theme: ThemeInfo
 
 
@@ -97,8 +101,10 @@ def _available_locales() -> list[str]:
 
 
 @router.get("", response_model=MetaResponse, summary="Deployment metadata for the UI")
-def get_meta(settings: SettingsDep) -> MetaResponse:
+def get_meta(settings: SettingsDep, db: DbDep, registry: RegistryDep) -> MetaResponse:
     from app import __version__
+
+    signup = signup_availability(db, settings)
 
     return MetaResponse(
         app_name=settings.app_name,
@@ -112,5 +118,8 @@ def get_meta(settings: SettingsDep) -> MetaResponse:
         sampler_enabled=settings.sampler_enabled,
         default_locale=settings.default_locale,
         available_locales=_available_locales(),
+        signup_available=signup.available,
+        signup_is_first_user=signup.first_user,
+        cluster_count=len(registry),
         theme=_load_theme(settings.theme_dir, settings.app_name),
     )

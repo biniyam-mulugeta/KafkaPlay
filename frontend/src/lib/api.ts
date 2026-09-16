@@ -22,6 +22,9 @@ export interface Meta {
   sampler_enabled: boolean
   default_locale: string
   available_locales: string[]
+  signup_available: boolean
+  signup_is_first_user: boolean
+  cluster_count: number
   theme: ThemeInfo
 }
 
@@ -675,6 +678,27 @@ export const api = {
       body: JSON.stringify({ username, password }),
     }),
   logout: () => request<void>('/auth/logout', { method: 'POST' }),
+
+  signupAvailability: () =>
+    request<{ available: boolean; first_user: boolean; reason: string | null }>('/auth/signup'),
+
+  signup: (username: string, password: string) =>
+    request<Me>('/auth/signup', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    }),
+
+  testCluster: (body: Record<string, unknown>) =>
+    request<{ ok: boolean; brokers: number; cluster_id: string | null; topics: number; error: string | null }>(
+      '/clusters/test',
+      { method: 'POST', body: JSON.stringify(body) },
+    ),
+
+  addCluster: (body: Record<string, unknown>) =>
+    request<ClusterSummary>('/clusters', { method: 'POST', body: JSON.stringify(body) }),
+
+  removeCluster: (name: string) =>
+    request<void>(`/clusters/${encodeURIComponent(name)}`, { method: 'DELETE' }),
   clusters: () => request<{ clusters: ClusterSummary[] }>('/clusters'),
 
   overview: (cluster: string) =>

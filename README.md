@@ -18,26 +18,34 @@ It is also careful with your brokers: lag comes from the AdminClient rather than
 
 ---
 
-## 60-second quick start
+## Quick start
 
 ```bash
 git clone https://github.com/<your-account>/kafkaplay.git
 cd kafkaplay
-cp .env.example .env
-
-# SESSION_SECRET is the only required setting.
-python3 -c 'import secrets; print("SESSION_SECRET=" + secrets.token_urlsafe(32))' >> .env
-
-cp config/clusters.example.yaml config/clusters.yaml
-# ...point bootstrap_servers at your broker...
-
-docker compose up -d
+docker compose up -d --build
 ```
 
-Open <http://127.0.0.1:8080>. The first admin password is printed once in the logs unless you set `ADMIN_PASSWORD`:
+That is the whole setup. No `.env`, no config file, no secrets to generate.
+
+Open <http://127.0.0.1:8080>, register the first account — **it becomes the
+administrator** — and add your cluster from the UI. The connection is tested
+before it is saved, so a wrong broker address or SASL mechanism is caught
+immediately rather than showing up as an empty topic list later.
+
+Registration then closes automatically. Add colleagues from Settings, or set
+`ALLOW_SIGNUP=true` to let them register themselves as viewers.
+
+### Prefer to configure it up front?
+
+Everything is optional, in `.env` beside the compose file:
 
 ```bash
-docker compose logs console | grep generated_admin_password
+KAFKA_BOOTSTRAP_SERVERS=broker:9092   # skip the "add a cluster" step
+ADMIN_USERNAME=admin                  # pre-create an admin instead of
+ADMIN_PASSWORD=at-least-12-chars      #   registering the first account
+READ_ONLY=true                        # block every write, even for admins
+CONSOLE_PORT=8090                     # if 8080 is taken
 ```
 
 ### Try it with no cluster of your own

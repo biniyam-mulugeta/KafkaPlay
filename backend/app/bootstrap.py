@@ -1,13 +1,13 @@
 """First-run setup: create the initial admin account.
 
-Runs once against an empty user table. If ADMIN_PASSWORD is unset we generate
-one and print it to the log exactly once, which is friendlier than refusing to
-start and is safe because the log is the operator's own stdout.
+Runs once against an empty user table.
+
+When ADMIN_PASSWORD is set, that admin is created up front. When it is not,
+nothing is created and the first person to register claims the admin account
+-- which is what makes a zero-configuration deployment usable.
 """
 
 from __future__ import annotations
-
-import secrets
 
 from sqlalchemy import Engine
 from sqlmodel import select
@@ -32,10 +32,18 @@ def ensure_first_admin(engine: Engine, settings: Settings) -> None:
             return
 
         password = settings.admin_password
-        generated = False
         if not password:
-            password = secrets.token_urlsafe(18)
-            generated = True
+            # No pre-seeded admin: the first person to register claims the
+            # account. This keeps a fresh deployment usable with no
+            # configuration at all, and avoids a printed password that nobody
+            # reads. See POST /api/v1/auth/signup.
+            log.info(
+                "awaiting_first_registration",
+                detail=(
+                    "No users exist yet. The first account registered becomes the administrator."
+                ),
+            )
+            return
 
         try:
             password_hash = hash_password(password)
@@ -43,7 +51,7 @@ def ensure_first_admin(engine: Engine, settings: Settings) -> None:
             raise RuntimeError(
                 f"ADMIN_PASSWORD is not usable: {exc}. "
                 "Set a password of at least 12 characters, or leave ADMIN_PASSWORD "
-                "unset to have one generated."
+                "unset and register the first account in the UI instead."
             ) from exc
 
         session.add(
@@ -56,13 +64,4 @@ def ensure_first_admin(engine: Engine, settings: Settings) -> None:
             )
         )
 
-        if generated:
-            # Printed once, never stored in plaintext, never logged again.
-            log.warning(
-                "generated_initial_admin_password",
-                username=settings.admin_username,
-                generated_password=password,
-                hint="Store this now and set ADMIN_PASSWORD, or change it in the UI.",
-            )
-        else:
-            log.info("created_initial_admin", username=settings.admin_username)
+        log.info("created_initial_admin", username=settings.admin_username)

@@ -31,8 +31,9 @@ from app.api.v1 import users as user_routes
 from app.auth.rbac import AuthorizationError, ReadOnlyError
 from app.auth.sessions import SessionCodec
 from app.bootstrap import ensure_first_admin
-from app.clusters.loader import ClusterConfigError
+from app.clusters.loader import ClusterConfigError, load_clusters_file
 from app.clusters.registry import ClusterRegistry, UnknownClusterError
+from app.clusters.store import from_environment, load_stored
 from app.config import Settings, load_settings
 from app.kafka.gates import GateRegistry
 from app.logging import configure_logging, get_logger
@@ -53,12 +54,28 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     ensure_first_admin(engine, settings)
 
+    # Clusters come from three places, in increasing precedence: the
+    # KAFKA_BOOTSTRAP_SERVERS shortcut, clusters added in the UI, and
+    # clusters.yaml. The file wins because it is the declaration a redeploy
+    # reproduces.
+    registry = ClusterRegistry()
+
+    if settings.kafka_bootstrap_servers:
+        registry.upsert(
+            from_environment(settings.kafka_bootstrap_servers, settings.kafka_cluster_name)
+        )
+
+    for stored in load_stored(engine):
+        registry.upsert(stored)
+
     try:
-        registry = ClusterRegistry.from_file(settings.clusters_file)
+        for configured in load_clusters_file(settings.clusters_file).clusters:
+            registry.upsert(configured)
     except ClusterConfigError as exc:
         # Misconfiguration must fail loudly at startup, not on first request.
         log.error("cluster_config_invalid", error=str(exc))
         raise
+
     app.state.registry = registry
 
     app.state.gates = GateRegistry(

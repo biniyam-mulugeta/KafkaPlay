@@ -25,6 +25,7 @@ interface SessionValue {
   mode: ColorMode
   setMode: (mode: ColorMode) => void
   signIn: (username: string, password: string) => Promise<void>
+  signUp: (username: string, password: string) => Promise<void>
   signOut: () => Promise<void>
   /** True when the deployment needs a login and nobody is signed in. */
   needsLogin: boolean
@@ -56,6 +57,12 @@ export function SessionProvider({ meta, initialMe, children }: {
     setMe(user)
   }, [])
 
+  const signUp = useCallback(async (username: string, password: string) => {
+    const user = await api.signup(username, password)
+    setCsrfToken(user.csrf_token)
+    setMe(user)
+  }, [])
+
   const signOut = useCallback(async () => {
     try {
       await api.logout()
@@ -73,10 +80,11 @@ export function SessionProvider({ meta, initialMe, children }: {
       mode,
       setMode,
       signIn,
+      signUp,
       signOut,
       needsLogin: meta.auth_mode !== 'none' && me === null,
     }),
-    [meta, me, mode, setMode, signIn, signOut],
+    [meta, me, mode, setMode, signIn, signUp, signOut],
   )
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>

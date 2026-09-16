@@ -262,3 +262,36 @@ class FlowEdgeAnnotation(SQLModel, table=True):
     target: str
     kind: str = Field(default="produces")
     created_by: str = Field(default="system")
+
+
+class StoredCluster(SQLModel, table=True):
+    """A cluster added through the UI rather than clusters.yaml.
+
+    Kept so a deployment can be configured entirely from the browser. File
+    clusters take precedence on a name collision, because a file is the more
+    deliberate declaration and is what a redeploy will reproduce.
+
+    Credentials are stored as given. This table is as sensitive as the
+    cluster's own credentials, which is why the database belongs on a volume
+    only the console can read.
+    """
+
+    __tablename__ = "stored_clusters"
+
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True, unique=True)
+    label: str | None = Field(default=None)
+    bootstrap_servers: str
+    security_protocol: str = Field(default="PLAINTEXT")
+    sasl_mechanism: str | None = Field(default=None)
+    sasl_username: str | None = Field(default=None)
+    sasl_password: str | None = Field(default=None)
+    tls_ca_location: str | None = Field(default=None)
+    tls_insecure_skip_verify: bool = Field(default=False)
+    schema_registry_url: str | None = Field(default=None)
+    schema_registry_username: str | None = Field(default=None)
+    schema_registry_password: str | None = Field(default=None)
+    read_only: bool = Field(default=False)
+    masking_enabled: bool = Field(default=True)
+    created_at: datetime = Field(default_factory=utcnow)
+    created_by: str = Field(default="system")

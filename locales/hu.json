@@ -40,7 +40,16 @@
     "subtitle": "Jelentkezzen be a folytatáshoz: {{product}}.",
     "invalid": "Hibás felhasználónév vagy jelszó.",
     "unavailable": "A konzol nem érhető el. Ellenőrizze, hogy fut-e a háttérszolgáltatás.",
-    "submitting": "Bejelentkezés…"
+    "submitting": "Bejelentkezés…",
+    "createAccount": "Fiók létrehozása",
+    "creating": "Létrehozás…",
+    "confirmPassword": "Jelszó megerősítése",
+    "passwordsDiffer": "A két jelszó nem egyezik.",
+    "passwordRule": "Legalább 12 karakter.",
+    "firstUserHint": "Még nincs fiók. Az elsőként létrehozott fiók lesz a rendszergazda.",
+    "registerHint": "Hozzon létre egy fiókot a folytatáshoz.",
+    "haveAccount": "Van már fiókja? Jelentkezzen be",
+    "needAccount": "Nincs fiókja? Regisztráljon"
   },
   "banner": {
     "noAuthTitle": "A hitelesítés ki van kapcsolva",
@@ -487,5 +496,27 @@
     "none": "Nincs meghatározott ACL",
     "noneHelp": "Ezen a fürtön van engedélyező, de még nincs bejegyzés.",
     "notAvailable": "Az ACL-ek nem érhetők el ezen a fürtön"
+  },
+  "addCluster": {
+    "title": "Fürt hozzáadása",
+    "name": "Név",
+    "bootstrap": "Bootstrap kiszolgálók",
+    "security": "Biztonság",
+    "mechanism": "SASL mechanizmus",
+    "registry": "Schema Registry URL (opcionális)",
+    "readOnly": "Csak olvasható (minden írást tilt, a rendszergazdáknak is)",
+    "test": "Kapcsolat tesztelése",
+    "testing": "Tesztelés…",
+    "add": "Fürt hozzáadása",
+    "adding": "Hozzáadás…",
+    "testFirst": "Tesztelje a kapcsolatot a hozzáadás előtt.",
+    "reachable": "Csatlakozva",
+    "unreachable": "Nem sikerült csatlakozni",
+    "reachableDetail": "{{brokers}} bróker, {{topics}} topic.",
+    "noneTitle": "Még nincs beállított fürt",
+    "noneBody": "Adjon hozzá egyet alább a topicok böngészéséhez, vagy állítsa be a KAFKA_BOOTSTRAP_SERVERS értéket és indítsa újra.",
+    "yours": "Fürtök",
+    "remove": "Eltávolítás",
+    "fromFile": "a clusters.yaml fájlból"
   }
 }

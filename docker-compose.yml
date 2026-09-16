@@ -1,63 +1,94 @@
-# Production compose: the console on its own.
+# KafkaPlay.
 #
-# There is deliberately NO default Docker network here. How the console reaches
-# your brokers is a decision only you can make -- see docs/connections.md for
-# the three supported setups. Uncomment the block that matches yours.
+#   docker compose up -d --build
+#
+# That is the whole setup. No .env, no config file, no generated secrets.
+# Open http://127.0.0.1:8080, register the first account (it becomes the
+# administrator), and add your cluster from the UI.
+#
+# Everything below is optional. Set it in a .env file beside this one, or in
+# your shell, when you want to pin something down.
 
 services:
   console:
-    image: ghcr.io/${GHCR_OWNER:-your-account}/kafkaplay:${KAFKAPLAY_VERSION:-latest}
-    # To build locally instead of pulling:
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Published images are also available once you have pushed one:
+    #   image: ghcr.io/<your-account>/kafkaplay:latest
+    image: kafkaplay:local
     container_name: kafkaplay
     restart: unless-stopped
 
-    # Bound to localhost by default. Put a reverse proxy with TLS in front, or
-    # reach it over an SSH tunnel:  ssh -L 8080:localhost:8080 user@server
+    # Bound to localhost by default: nothing is exposed to your network until
+    # you say so. Reach a remote one over an SSH tunnel:
+    #   ssh -L 8080:localhost:8080 user@server
     ports:
       - "${CONSOLE_BIND:-127.0.0.1}:${CONSOLE_PORT:-8080}:8080"
 
     environment:
+      # --- Optional: skip the "add a cluster" step -------------------------
+      # A single PLAINTEXT cluster, ready on first load. Anything more
+      # involved (TLS, SASL) is easier to add from the UI, which tests the
+      # connection before saving it.
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-}
+      KAFKA_CLUSTER_NAME: ${KAFKA_CLUSTER_NAME:-kafka}
+
+      # --- Optional: appearance --------------------------------------------
       APP_NAME: ${APP_NAME:-KafkaPlay}
       THEME: ${THEME:-kafkaplay}
-      AUTH_MODE: ${AUTH_MODE:-local}
-      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set; see .env.example}
-      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      DEFAULT_LOCALE: ${DEFAULT_LOCALE:-en}
+
+      # --- Optional: safety -------------------------------------------------
+      # Turn this on when pointing the console at a cluster you do not intend
+      # to change. It overrides user roles: even an admin cannot write.
       READ_ONLY: ${READ_ONLY:-false}
       MASKING_ENABLED: ${MASKING_ENABLED:-true}
+
+      # --- Optional: accounts ------------------------------------------------
+      # Left unset, the first person to register claims the admin account.
+      # Set both to pre-create an admin instead and skip registration.
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      # Let other people register their own accounts after the first. They
+      # start as viewers and an admin promotes them.
+      ALLOW_SIGNUP: ${ALLOW_SIGNUP:-false}
+      # Generated and persisted to the data volume when unset. Pin it only if
+      # you run more than one replica, which must share the same value.
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      # Set true when serving over HTTPS behind a reverse proxy.
       SECURE_COOKIES: ${SECURE_COOKIES:-false}
+
+      # --- Optional: everything else ----------------------------------------
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       LOG_FORMAT: ${LOG_FORMAT:-json}
-      SAMPLER_ENABLED: ${SAMPLER_ENABLED:-true}
       SAMPLER_INTERVAL_SECONDS: ${SAMPLER_INTERVAL_SECONDS:-30}
       SAMPLER_RETENTION_DAYS: ${SAMPLER_RETENTION_DAYS:-7}
       PROMETHEUS_URL: ${PROMETHEUS_URL:-}
 
     volumes:
+      # Users, dashboards, alert rules, the audit log, sampled offsets, and
+      # the generated session secret.
       - kafkaplay_data:/data
-      # Cluster definitions. Secrets stay in the environment, not in this file.
+      # Optional: declare clusters in a file instead of the UI. The directory
+      # is created empty if it does not exist.
       - ./config:/config:ro
-      # Optional: mount your own themes without rebuilding the image.
-      # - ./themes:/app/themes:ro
 
-    # --- Networking: pick ONE of the three setups ---------------------------
+    # --- Reaching your broker ------------------------------------------------
     #
-    # (a) Brokers in this same compose project: add them as services and
-    #     reference them by service name. Nothing extra needed here.
+    # If your Kafka runs in another compose project, the console needs to join
+    # its network. Set KAFKA_NETWORK in .env to the name from `docker network
+    # ls`, then uncomment this and the networks block at the bottom.
     #
-    # (b) Brokers in ANOTHER compose project, on an existing Docker network.
-    #     Set KAFKA_NETWORK in .env to that network's real name -- there is no
-    #     sensible default, so this file does not invent one. Find it with:
-    #         docker network ls
     # networks:
     #   - kafka
     #
-    # (c) Brokers on the host or a remote host: no extra network needed. Set
-    #     bootstrap_servers in config/clusters.yaml and read the
-    #     advertised.listeners notes in docs/connections.md first.
+    # For a broker on this host, use host.docker.internal:9092 and uncomment:
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+    #
+    # A remote broker needs nothing special -- just its address.
+    # See docs/connections.md for the advertised.listeners pitfalls.
 
     security_opt:
       - no-new-privileges:true
@@ -65,7 +96,7 @@ services:
     tmpfs:
       - /tmp
 
-# Uncomment together with the `networks:` block on the service for setup (b).
+# Uncomment together with the service's networks block above.
 # networks:
 #   kafka:
 #     external: true

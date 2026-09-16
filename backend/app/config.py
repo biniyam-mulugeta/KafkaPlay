@@ -41,6 +41,31 @@ def _is_loopback(host: str) -> bool:
         return False
 
 
+def _load_or_create_secret(path: Path) -> str:
+    """Read the persisted session secret, creating it on first run.
+
+    Owner-only permissions: anyone who can read this file can forge a session.
+    """
+    try:
+        if path.exists():
+            existing = path.read_text(encoding="utf-8").strip()
+            if len(existing) >= 32:
+                return existing
+    except OSError:
+        pass
+
+    secret = secrets.token_urlsafe(32)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(secret, encoding="utf-8")
+        path.chmod(0o600)
+    except OSError:
+        # A read-only volume is survivable: the console still works, but
+        # sessions will not outlive a restart.
+        pass
+    return secret
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -83,7 +108,14 @@ class Settings(BaseSettings):
             "explicitly -- that is deliberate."
         ),
     )
-    session_secret: str = Field(default="")
+    session_secret: str = Field(
+        default="",
+        description="Generated and persisted on first run when left unset.",
+    )
+    secret_file: Path = Field(
+        default=Path("data/.session_secret"),
+        description="Where a generated session secret is persisted.",
+    )
     session_max_age_seconds: int = Field(default=60 * 60 * 12, ge=60)
     session_cookie_name: str = Field(default="kafkaplay_session")
     csrf_cookie_name: str = Field(default="kafkaplay_csrf")
@@ -92,9 +124,21 @@ class Settings(BaseSettings):
         description="Set true when serving over HTTPS so cookies carry the Secure flag.",
     )
 
-    # First admin, created once on an empty database.
+    # Optional pre-seeded admin. When left blank, the first person to register
+    # claims the admin account instead -- see allow_signup.
     admin_username: str = Field(default="admin")
     admin_password: str = Field(default="")
+
+    allow_signup: bool = Field(
+        default=False,
+        description=(
+            "Allow anyone who can reach the console to register an account. "
+            "Registration is ALWAYS open while no users exist, so a fresh "
+            "deployment can be claimed; that first account becomes the admin. "
+            "Afterwards this must be turned on explicitly, and new accounts are "
+            "created as viewers."
+        ),
+    )
 
     # --- OIDC (used when AUTH_MODE=oidc) ------------------------------------
     oidc_issuer_url: str | None = Field(default=None)
@@ -119,6 +163,14 @@ class Settings(BaseSettings):
 
     # --- Clusters -----------------------------------------------------------
     clusters_file: Path = Field(default=Path("config/clusters.yaml"))
+    kafka_bootstrap_servers: str | None = Field(
+        default=None,
+        description=(
+            "Shortcut for a single-cluster deployment: creates one cluster without "
+            "a clusters.yaml. Clusters added in the UI are stored in the database."
+        ),
+    )
+    kafka_cluster_name: str = Field(default="kafka")
 
     # --- Broker call budget -------------------------------------------------
     admin_timeout_seconds: float = Field(default=10.0, gt=0)
@@ -216,21 +268,27 @@ class Settings(BaseSettings):
         return self
 
     @model_validator(mode="after")
-    def _require_session_secret(self) -> Settings:
-        """A blank secret is fine for AUTH_MODE=none; anything else must set one."""
-        if self.auth_mode is AuthMode.NONE:
-            if not self.session_secret:
-                # Ephemeral: sessions do not outlive the process, which is correct
-                # for a mode that has no users to keep logged in.
-                self.session_secret = secrets.token_urlsafe(32)
+    def _resolve_session_secret(self) -> Settings:
+        """Use the configured secret, or generate and persist one.
+
+        Refusing to start without SESSION_SECRET made a first run need manual
+        setup for no security benefit: a generated secret is stronger than one
+        a person invents. It is persisted next to the database so sessions
+        survive a restart, and an operator can still pin it via the
+        environment for multi-replica deployments, where every replica must
+        share the same value.
+        """
+        if self.session_secret:
+            if len(self.session_secret) < 32:
+                raise ValueError("SESSION_SECRET must be at least 32 characters.")
             return self
-        if not self.session_secret:
-            raise ValueError(
-                "SESSION_SECRET must be set. Generate one with: "
-                "python -c 'import secrets; print(secrets.token_urlsafe(32))'"
-            )
-        if len(self.session_secret) < 32:
-            raise ValueError("SESSION_SECRET must be at least 32 characters.")
+
+        if self.auth_mode is AuthMode.NONE:
+            # Nothing to keep logged in; an ephemeral secret is correct here.
+            self.session_secret = secrets.token_urlsafe(32)
+            return self
+
+        self.session_secret = _load_or_create_secret(self.secret_file)
         return self
 
     @property
