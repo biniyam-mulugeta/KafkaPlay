@@ -15,8 +15,8 @@ import { Audit } from '@/pages/Audit'
 import { Metrics } from '@/pages/Metrics'
 import { Settings } from '@/pages/Settings'
 import { Overview } from '@/pages/Overview'
-import { Placeholder } from '@/pages/Placeholder'
 import { Replication } from '@/pages/Replication'
+import { Acls, Schemas } from '@/pages/Schemas'
 import { TopicDetail } from '@/pages/TopicDetail'
 import { Topics } from '@/pages/Topics'
 import { useSession } from '@/lib/session'
@@ -48,8 +48,8 @@ export function App() {
             <Route path="metrics" element={<Metrics />} />
             <Route path="dashboards" element={<Dashboards />} />
             <Route path="flow-map" element={<FlowMapPage />} />
-            <Route path="schemas" element={<Placeholder titleKey="nav.schemas" milestone="M8" />} />
-            <Route path="acls" element={<Placeholder titleKey="nav.acls" milestone="M8" />} />
+            <Route path="schemas" element={<Schemas />} />
+            <Route path="acls" element={<Acls />} />
             <Route path="alerts" element={<Alerts />} />
             <Route path="audit" element={<Audit />} />
             <Route path="settings" element={<Settings />} />

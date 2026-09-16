@@ -545,6 +545,52 @@ export interface TraceResult {
   note: string
 }
 
+
+// --- M8: schemas and ACLs -------------------------------------------------
+
+export type SchemaType = 'AVRO' | 'JSON' | 'PROTOBUF'
+
+export interface SchemaVersion {
+  subject: string
+  version: number
+  id: number
+  schema_type: SchemaType
+  schema_text: string
+  references: Record<string, unknown>[]
+}
+
+export interface SubjectSummary {
+  name: string
+  latest_version: number | null
+  versions: number[]
+  compatibility: string | null
+}
+
+export interface SchemaDiff {
+  subject: string
+  from_version: number
+  to_version: number
+  unified: string
+  added: number
+  removed: number
+}
+
+export interface AclModel {
+  resource_type: string
+  resource_name: string
+  pattern_type: string
+  principal: string
+  host: string
+  operation: string
+  permission: string
+}
+
+export interface AclListResponse {
+  acls: AclModel[]
+  supported: boolean
+  message: string | null
+}
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -885,6 +931,62 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(body),
     }),
+
+  subjects: (cluster: string) =>
+    request<{ subjects: string[] }>(
+      `/clusters/${encodeURIComponent(cluster)}/schemas/subjects`,
+    ),
+
+  subject: (cluster: string, subject: string) =>
+    request<SubjectSummary>(
+      `/clusters/${encodeURIComponent(cluster)}/schemas/subjects/${encodeURIComponent(subject)}`,
+    ),
+
+  schemaVersion: (cluster: string, subject: string, version: number | 'latest') =>
+    request<SchemaVersion>(
+      `/clusters/${encodeURIComponent(cluster)}/schemas/subjects/` +
+        `${encodeURIComponent(subject)}/versions/${version}`,
+    ),
+
+  schemaDiff: (cluster: string, subject: string, from: number, to: number) =>
+    request<SchemaDiff>(
+      `/clusters/${encodeURIComponent(cluster)}/schemas/subjects/` +
+        `${encodeURIComponent(subject)}/diff?from=${from}&to=${to}`,
+    ),
+
+  checkCompatibility: (
+    cluster: string,
+    subject: string,
+    body: { schema_text: string; schema_type: SchemaType },
+  ) =>
+    request<{ compatible: boolean; messages: string[]; level: string | null }>(
+      `/clusters/${encodeURIComponent(cluster)}/schemas/subjects/` +
+        `${encodeURIComponent(subject)}/compatibility`,
+      { method: 'POST', body: JSON.stringify(body) },
+    ),
+
+  acls: (cluster: string) =>
+    request<AclListResponse>(`/clusters/${encodeURIComponent(cluster)}/acls`),
+
+  aclOptions: (cluster: string) =>
+    request<{
+      operations: string[]
+      permissions: string[]
+      resource_types: string[]
+      pattern_types: string[]
+    }>(`/clusters/${encodeURIComponent(cluster)}/acls/options`),
+
+  createAcl: (cluster: string, body: Record<string, unknown>) =>
+    request<{ status: string }>(`/clusters/${encodeURIComponent(cluster)}/acls`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  deleteAcl: (cluster: string, body: Record<string, unknown>) =>
+    request<{ status: string; removed: number }>(
+      `/clusters/${encodeURIComponent(cluster)}/acls/delete`,
+      { method: 'POST', body: JSON.stringify(body) },
+    ),
 
   users: () => request<{ users: AppUser[] }>('/users'),
 

@@ -446,5 +446,46 @@
     "unmatchedHint": "Target records whose key was not seen on the source side within the scanned window.",
     "negative": "{{count}} negative",
     "negativeHint": "The target record predates its source. Usually a clock skew or a wrong join key."
+  },
+  "palette": {
+    "title": "Command palette",
+    "placeholder": "Jump to a page, topic, group or cluster…",
+    "page": "page",
+    "topic": "topic",
+    "group": "group",
+    "cluster": "cluster",
+    "noMatches": "Nothing matches",
+    "navigate": "navigate",
+    "open": "open",
+    "trigger": "Search"
+  },
+  "schemas": {
+    "subtitle": "Browse subjects and versions, and diff any two.",
+    "subjects": "Subjects",
+    "pickSubject": "Select a subject",
+    "noSubjects": "No subjects registered",
+    "noSubjectsHelp": "Nothing has registered a schema in this registry yet.",
+    "notConfigured": "No Schema Registry configured",
+    "latest": "Latest version",
+    "compare": "Compare versions",
+    "from": "From",
+    "to": "To",
+    "pickVersions": "Choose two versions to compare.",
+    "identical": "These versions are identical.",
+    "type": "Type",
+    "id": "Schema ID",
+    "versionCount": "{{count}} versions"
+  },
+  "acls": {
+    "subtitle": "Access control entries on this cluster.",
+    "principal": "Principal",
+    "resource": "Resource",
+    "pattern": "Pattern",
+    "operation": "Operation",
+    "permission": "Permission",
+    "host": "Host",
+    "none": "No ACLs defined",
+    "noneHelp": "This cluster has an authorizer but no entries yet.",
+    "notAvailable": "ACLs are not available on this cluster"
   }
 }

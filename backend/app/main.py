@@ -25,6 +25,7 @@ from app.api.v1 import messages as message_routes
 from app.api.v1 import meta as meta_routes
 from app.api.v1 import metrics as metric_routes
 from app.api.v1 import produce as produce_routes
+from app.api.v1 import schemas as schema_routes
 from app.api.v1 import topics as topic_routes
 from app.api.v1 import users as user_routes
 from app.auth.rbac import AuthorizationError, ReadOnlyError
@@ -219,6 +220,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     v1.include_router(metric_routes.router)
     v1.include_router(admin_routes.router)
     v1.include_router(produce_routes.router)
+    v1.include_router(schema_routes.router)
     v1.include_router(dashboard_routes.router)
     v1.include_router(alert_routes.router)
     v1.include_router(audit_routes.router)

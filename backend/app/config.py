@@ -96,6 +96,24 @@ class Settings(BaseSettings):
     admin_username: str = Field(default="admin")
     admin_password: str = Field(default="")
 
+    # --- OIDC (used when AUTH_MODE=oidc) ------------------------------------
+    oidc_issuer_url: str | None = Field(default=None)
+    oidc_client_id: str | None = Field(default=None)
+    oidc_client_secret: str | None = Field(default=None)
+    oidc_redirect_uri: str | None = Field(default=None)
+    oidc_scopes: str = Field(default="openid profile email")
+    oidc_username_claim: str = Field(default="preferred_username")
+    oidc_role_claim: str = Field(
+        default="groups",
+        description="Claim holding the caller's groups or roles.",
+    )
+    oidc_admin_value: str | None = Field(
+        default=None, description="Claim value that grants the admin role."
+    )
+    oidc_operator_value: str | None = Field(
+        default=None, description="Claim value that grants the operator role."
+    )
+
     # --- Storage ------------------------------------------------------------
     database_url: str = Field(default="sqlite:///./data/kafkaplay.db")
 
@@ -178,6 +196,23 @@ class Settings(BaseSettings):
                 "every topic and admin action to anyone who can reach this port, "
                 "or set AUTH_MODE=local."
             )
+        return self
+
+    @model_validator(mode="after")
+    def _require_oidc_settings(self) -> Settings:
+        """Fail at startup rather than at the first login attempt."""
+        if self.auth_mode is AuthMode.OIDC:
+            missing = [
+                name
+                for name, value in (
+                    ("OIDC_ISSUER_URL", self.oidc_issuer_url),
+                    ("OIDC_CLIENT_ID", self.oidc_client_id),
+                    ("OIDC_REDIRECT_URI", self.oidc_redirect_uri),
+                )
+                if not value
+            ]
+            if missing:
+                raise ValueError("AUTH_MODE=oidc requires " + ", ".join(missing) + " to be set.")
         return self
 
     @model_validator(mode="after")

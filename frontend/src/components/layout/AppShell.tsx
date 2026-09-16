@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
+import { CommandPalette, useCommandPalette } from '@/components/layout/CommandPalette'
 import { Header } from '@/components/layout/Header'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Banner } from '@/components/states/Banner'
@@ -11,6 +12,7 @@ export function AppShell() {
   const { t } = useTranslation()
   const { meta } = useSession()
   const [collapsed, setCollapsed] = useState(false)
+  const palette = useCommandPalette()
 
   return (
     <div className="flex h-screen flex-col bg-bg">
@@ -21,7 +23,7 @@ export function AppShell() {
         Skip to content
       </a>
 
-      <Header />
+      <Header onOpenPalette={() => palette.setOpen(true)} />
 
       {/* A wide-open console is not something to mention quietly once. */}
       {meta.insecure_no_auth && (
@@ -36,6 +38,8 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
+
+      <CommandPalette open={palette.open} onClose={() => palette.setOpen(false)} />
     </div>
   )
 }

@@ -446,5 +446,46 @@
     "unmatchedHint": "Olyan célrekordok, amelyek kulcsa nem szerepelt a forrásoldalon a vizsgált ablakban.",
     "negative": "{{count}} negatív",
     "negativeHint": "A célrekord megelőzi a forrását. Általában óraeltérés vagy hibás összekapcsolási kulcs."
+  },
+  "palette": {
+    "title": "Parancspaletta",
+    "placeholder": "Ugrás oldalra, topicra, csoportra vagy fürtre…",
+    "page": "oldal",
+    "topic": "topic",
+    "group": "csoport",
+    "cluster": "fürt",
+    "noMatches": "Nincs találat",
+    "navigate": "navigálás",
+    "open": "megnyitás",
+    "trigger": "Keresés"
+  },
+  "schemas": {
+    "subtitle": "Tárgyak és verziók böngészése, bármely kettő összehasonlítása.",
+    "subjects": "Tárgyak",
+    "pickSubject": "Válasszon tárgyat",
+    "noSubjects": "Nincs regisztrált tárgy",
+    "noSubjectsHelp": "Ebben a nyilvántartásban még nincs regisztrált séma.",
+    "notConfigured": "Nincs beállítva sémanyilvántartás",
+    "latest": "Legutolsó verzió",
+    "compare": "Verziók összehasonlítása",
+    "from": "Innen",
+    "to": "Ide",
+    "pickVersions": "Válasszon két verziót az összehasonlításhoz.",
+    "identical": "Ezek a verziók azonosak.",
+    "type": "Típus",
+    "id": "Séma azonosító",
+    "versionCount": "{{count}} verzió"
+  },
+  "acls": {
+    "subtitle": "Hozzáférés-vezérlési bejegyzések ezen a fürtön.",
+    "principal": "Résztvevő",
+    "resource": "Erőforrás",
+    "pattern": "Minta",
+    "operation": "Művelet",
+    "permission": "Engedély",
+    "host": "Gép",
+    "none": "Nincs meghatározott ACL",
+    "noneHelp": "Ezen a fürtön van engedélyező, de még nincs bejegyzés.",
+    "notAvailable": "Az ACL-ek nem érhetők el ezen a fürtön"
   }
 }

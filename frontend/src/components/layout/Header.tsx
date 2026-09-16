@@ -26,7 +26,7 @@ function Brand() {
   )
 }
 
-export function Header() {
+export function Header({ onOpenPalette }: { onOpenPalette: () => void }) {
   const { t, i18n } = useTranslation()
   const { meta, me, mode, setMode, signOut } = useSession()
 
@@ -37,6 +37,16 @@ export function Header() {
       <Brand />
 
       <div className="flex-1" />
+
+      <button
+        type="button"
+        onClick={onOpenPalette}
+        className="hidden items-center gap-2 rounded border border-subtle px-2 py-1 text-xs text-muted hover:bg-surface-sunken hover:text-body sm:flex"
+      >
+        <span aria-hidden="true">⌕</span>
+        {t('palette.trigger')}
+        <kbd className="rounded bg-surface-sunken px-1 font-mono text-[10px]">⌘K</kbd>
+      </button>
 
       <ClusterSwitcher />
 
