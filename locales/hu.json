@@ -370,5 +370,81 @@
     "readOnlyNote": "A riasztási szabályok továbbra is kezelhetők; a csak olvasható mód csak a Kafka fürtök módosítását tiltja.",
     "deleteRuleTitle": "Törli ezt a riasztási szabályt?",
     "deleteRuleBody": "{{name}} kiértékelése leáll. A riasztási előzmények megmaradnak."
+  },
+  "dashboards": {
+    "subtitle": "Készítsen saját paneleket bármely topichoz. Ami az Ön folyamatára jellemző, az ide tartozik, nem a termékbe.",
+    "select": "Válasszon irányítópultot…",
+    "new": "Új",
+    "edit": "Szerkesztés",
+    "delete": "Törlés",
+    "export": "Exportálás",
+    "import": "Importálás",
+    "importFailed": "Ez a fájl nem érvényes irányítópult-export.",
+    "name": "Irányítópult neve",
+    "addPanel": "Panel hozzáadása",
+    "removePanel": "Eltávolítás",
+    "panelTitle": "Panel címe",
+    "panelType": "Panel típusa",
+    "statOp": "Statisztika",
+    "extract": "Kinyerés (JMESPath)",
+    "extractPlaceholder": "value.status",
+    "filterPlaceholder": "opcionális szűrő, pl. value.score > `0.7`",
+    "thresholds": "Küszöbértékek",
+    "thresholdsPlaceholder": "0.7",
+    "type": {
+      "throughput": "Átbocsátás",
+      "split_by": "Bontás mező szerint",
+      "histogram": "Hisztogram",
+      "top_n": "Top N",
+      "stat": "Egyetlen érték"
+    },
+    "refresh": "Megjelenítés",
+    "rendering": "Megjelenítés…",
+    "onDemandHint": "A megjelenítés korlátozott keresést futtat, ezért kérésre és nem időzítve történik.",
+    "notRendered": "Még nincs megjelenítve",
+    "noPanelData": "Nincs adat ebben az ablakban",
+    "panelFooter": "{{matched}} találat {{sampled}} átvizsgáltból, {{seconds}} mp alatt",
+    "none": "Még nincs irányítópult",
+    "noneHelp": "Hozzon létre egyet átbocsátás ábrázolásához, mező szerinti bontáshoz, numerikus hisztogramhoz vagy top-N táblázathoz.",
+    "deleteTitle": "Törli ezt az irányítópultot?",
+    "deleteBody": "{{name}} és paneldefiníciói törlődnek. Exportálja előbb, ha meg szeretné tartani."
+  },
+  "flow": {
+    "subtitle": "Hogyan áramlik az adat ezen a fürtön. A mért kapcsolatok elkülönülnek a deklaráltaktól.",
+    "kind": {
+      "topic": "topic",
+      "group": "csoport",
+      "producer": "termelő"
+    },
+    "column": {
+      "producer": "Termelők",
+      "topic": "Topicok",
+      "group": "Fogyasztói csoportok"
+    },
+    "origin": {
+      "observed": "mért",
+      "declared": "deklarált"
+    },
+    "observedHint": "A bróker állapotából származtatva.",
+    "declaredHint": "A clusters.yaml producer_hints beállításából, nem mérés alapján.",
+    "limitation": "A termelői kapcsolatokról",
+    "noProducers": "Nincs deklarálva. A Kafka ezt nem tudja jelenteni.",
+    "noneInColumn": "Nincs",
+    "edges": "Kapcsolatok",
+    "empty": "Még nincs megjeleníthető adat",
+    "emptyHelp": "Ezen a fürtön nincs topic, vagy a mintavételező még nem gyűjtött adatot.",
+    "tracerTitle": "Késleltetés-követő",
+    "tracerSubtitle": "Rekordok párosítása két topic között kulcs alapján, és a köztük eltelt idő mérése.",
+    "sourceTopic": "Innen",
+    "targetTopic": "Ide",
+    "sourceKey": "Kulcs kifejezés",
+    "targetKey": "Kulcs kifejezés",
+    "runTrace": "Követés indítása",
+    "tracing": "Követés…",
+    "matched": "{{count}} párosított pár",
+    "unmatched": "{{count}} párosítatlan",
+    "unmatchedHint": "Olyan célrekordok, amelyek kulcsa nem szerepelt a forrásoldalon a vizsgált ablakban.",
+    "negative": "{{count}} negatív",
+    "negativeHint": "A célrekord megelőzi a forrását. Általában óraeltérés vagy hibás összekapcsolási kulcs."
   }
 }

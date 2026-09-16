@@ -5,6 +5,8 @@ import { AppShell } from '@/components/layout/AppShell'
 import { EmptyState } from '@/components/states/EmptyState'
 import { ClusterProvider } from '@/lib/cluster'
 import { ConsumerGroups } from '@/pages/ConsumerGroups'
+import { Dashboards } from '@/pages/Dashboards'
+import { FlowMapPage } from '@/pages/FlowMap'
 import { GroupDetail } from '@/pages/GroupDetail'
 import { Login } from '@/pages/Login'
 import { Messages } from '@/pages/Messages'
@@ -44,11 +46,8 @@ export function App() {
             <Route path="replication" element={<Replication />} />
             <Route path="messages" element={<Messages />} />
             <Route path="metrics" element={<Metrics />} />
-            <Route
-              path="dashboards"
-              element={<Placeholder titleKey="nav.dashboards" milestone="M7" />}
-            />
-            <Route path="flow-map" element={<Placeholder titleKey="nav.flowMap" milestone="M7" />} />
+            <Route path="dashboards" element={<Dashboards />} />
+            <Route path="flow-map" element={<FlowMapPage />} />
             <Route path="schemas" element={<Placeholder titleKey="nav.schemas" milestone="M8" />} />
             <Route path="acls" element={<Placeholder titleKey="nav.acls" milestone="M8" />} />
             <Route path="alerts" element={<Alerts />} />

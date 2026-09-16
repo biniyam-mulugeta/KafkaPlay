@@ -370,5 +370,81 @@
     "readOnlyNote": "Alert rules can still be managed; read-only only blocks changes to your Kafka clusters.",
     "deleteRuleTitle": "Delete this alert rule?",
     "deleteRuleBody": "{{name}} will stop being evaluated. Its firing history is kept."
+  },
+  "dashboards": {
+    "subtitle": "Build your own panels over any topic. Anything specific to your pipeline lives here, not in the product.",
+    "select": "Select a dashboard…",
+    "new": "New",
+    "edit": "Edit",
+    "delete": "Delete",
+    "export": "Export",
+    "import": "Import",
+    "importFailed": "That file is not a valid dashboard export.",
+    "name": "Dashboard name",
+    "addPanel": "Add panel",
+    "removePanel": "Remove",
+    "panelTitle": "Panel title",
+    "panelType": "Panel type",
+    "statOp": "Statistic",
+    "extract": "Extract (JMESPath)",
+    "extractPlaceholder": "value.status",
+    "filterPlaceholder": "optional filter, e.g. value.score > `0.7`",
+    "thresholds": "Thresholds",
+    "thresholdsPlaceholder": "0.7",
+    "type": {
+      "throughput": "Throughput",
+      "split_by": "Split by field",
+      "histogram": "Histogram",
+      "top_n": "Top N",
+      "stat": "Single stat"
+    },
+    "refresh": "Render",
+    "rendering": "Rendering…",
+    "onDemandHint": "Rendering runs a bounded scan, so it happens on demand rather than on a timer.",
+    "notRendered": "Not rendered yet",
+    "noPanelData": "No data in this window",
+    "panelFooter": "{{matched}} matched of {{sampled}} scanned in {{seconds}}s",
+    "none": "No dashboards yet",
+    "noneHelp": "Create one to chart throughput, split by any field, histogram a numeric value, or show a top-N table.",
+    "deleteTitle": "Delete this dashboard?",
+    "deleteBody": "{{name}} and its panel definitions will be removed. Export it first if you want to keep it."
+  },
+  "flow": {
+    "subtitle": "How data moves through this cluster. Measured edges are marked apart from declared ones.",
+    "kind": {
+      "topic": "topic",
+      "group": "group",
+      "producer": "producer"
+    },
+    "column": {
+      "producer": "Producers",
+      "topic": "Topics",
+      "group": "Consumer groups"
+    },
+    "origin": {
+      "observed": "measured",
+      "declared": "declared"
+    },
+    "observedHint": "Derived from broker state.",
+    "declaredHint": "From producer_hints in clusters.yaml, not measured.",
+    "limitation": "About producer edges",
+    "noProducers": "None declared. Kafka cannot report these.",
+    "noneInColumn": "None",
+    "edges": "Connections",
+    "empty": "Nothing to show yet",
+    "emptyHelp": "This cluster has no topics, or the sampler has not collected anything.",
+    "tracerTitle": "Latency tracer",
+    "tracerSubtitle": "Match records between two topics by key and measure the time between them.",
+    "sourceTopic": "From",
+    "targetTopic": "To",
+    "sourceKey": "Key expression",
+    "targetKey": "Key expression",
+    "runTrace": "Run trace",
+    "tracing": "Tracing…",
+    "matched": "{{count}} matched pairs",
+    "unmatched": "{{count}} unmatched",
+    "unmatchedHint": "Target records whose key was not seen on the source side within the scanned window.",
+    "negative": "{{count}} negative",
+    "negativeHint": "The target record predates its source. Usually a clock skew or a wrong join key."
   }
 }

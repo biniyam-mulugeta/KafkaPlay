@@ -18,6 +18,7 @@ from app.api.v1 import audit as audit_routes
 from app.api.v1 import auth as auth_routes
 from app.api.v1 import brokers as broker_routes
 from app.api.v1 import clusters as cluster_routes
+from app.api.v1 import dashboards as dashboard_routes
 from app.api.v1 import groups as group_routes
 from app.api.v1 import health as health_routes
 from app.api.v1 import messages as message_routes
@@ -218,6 +219,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     v1.include_router(metric_routes.router)
     v1.include_router(admin_routes.router)
     v1.include_router(produce_routes.router)
+    v1.include_router(dashboard_routes.router)
     v1.include_router(alert_routes.router)
     v1.include_router(audit_routes.router)
     v1.include_router(user_routes.router)

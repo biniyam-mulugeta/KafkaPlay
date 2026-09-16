@@ -201,3 +201,64 @@ class AlertFiring(SQLModel, table=True):
     acknowledged_by: str | None = Field(default=None)
     notified: bool = Field(default=False)
     notify_error: str | None = Field(default=None)
+
+
+class PanelType(StrEnum):
+    THROUGHPUT = "throughput"
+    SPLIT_BY = "split_by"
+    HISTOGRAM = "histogram"
+    TOP_N = "top_n"
+    STAT = "stat"
+
+
+class Dashboard(SQLModel, table=True):
+    """A user-built dashboard.
+
+    Panels are stored as a JSON document rather than a table per panel type,
+    because the shape is user-defined and the whole dashboard is imported and
+    exported as one unit.
+    """
+
+    __tablename__ = "dashboards"
+
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    cluster: str = Field(index=True)
+    description: str | None = Field(default=None)
+    panels_json: str = Field(default="[]")
+    created_at: datetime = Field(default_factory=utcnow)
+    updated_at: datetime = Field(default_factory=utcnow)
+    created_by: str = Field(default="system")
+
+
+class SavedSearch(SQLModel, table=True):
+    """A stored message-browser query. Never stores results, only the query."""
+
+    __tablename__ = "saved_searches"
+
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    cluster: str = Field(index=True)
+    topic: str
+    filter_expression: str | None = Field(default=None)
+    start_from: str = Field(default="newest")
+    created_at: datetime = Field(default_factory=utcnow)
+    created_by: str = Field(default="system")
+
+
+class FlowEdgeAnnotation(SQLModel, table=True):
+    """An operator-declared edge in the flow map.
+
+    Kafka exposes no API mapping producers to topics, so producer edges cannot
+    be derived. These are declared by hand (or from cluster config) and merged
+    with what can be inferred.
+    """
+
+    __tablename__ = "flow_edge_annotations"
+
+    id: int | None = Field(default=None, primary_key=True)
+    cluster: str = Field(index=True)
+    source: str
+    target: str
+    kind: str = Field(default="produces")
+    created_by: str = Field(default="system")

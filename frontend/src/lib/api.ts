@@ -443,6 +443,108 @@ export interface AlertKindInfo {
   threshold_hint: string
 }
 
+
+// --- M7: dashboards, flow map, tracer -------------------------------------
+
+export type PanelType = 'throughput' | 'split_by' | 'histogram' | 'top_n' | 'stat'
+export type StatOp = 'count' | 'sum' | 'avg' | 'min' | 'max' | 'p95'
+
+export interface PanelSpec {
+  id: string
+  title: string
+  type: PanelType
+  topic: string
+  partitions?: number[] | null
+  extract?: string | null
+  filter?: string | null
+  window_minutes: number
+  max_messages: number
+  top_n: number
+  buckets: number
+  thresholds: number[]
+  stat_op: StatOp
+  unit?: string | null
+  persist: boolean
+  retention_days: number
+}
+
+export interface PanelBucket {
+  label: string
+  value: number
+}
+
+export interface PanelResult {
+  id: string
+  title: string
+  type: PanelType
+  topic: string
+  sampled: number
+  matched: number
+  elapsed_seconds: number
+  stop_reason: string
+  buckets: PanelBucket[]
+  series: { at: number; messages_per_second: number }[]
+  stat: number | null
+  unit: string | null
+  thresholds: number[]
+  error: string | null
+}
+
+export interface DashboardModel {
+  id: number
+  name: string
+  cluster: string
+  description: string | null
+  panels: PanelSpec[]
+  created_at: string
+  updated_at: string
+  created_by: string
+}
+
+export interface FlowNode {
+  id: string
+  label: string
+  kind: 'topic' | 'group' | 'producer'
+  partitions: number | null
+  messages_per_second: number | null
+  lag: number | null
+  state: string | null
+}
+
+export interface FlowEdge {
+  source: string
+  target: string
+  kind: string
+  origin: 'observed' | 'declared'
+  messages_per_second: number | null
+  lag: number | null
+}
+
+export interface FlowMap {
+  nodes: FlowNode[]
+  edges: FlowEdge[]
+  notes: string[]
+  degraded: string | null
+}
+
+export interface TraceResult {
+  source_topic: string
+  target_topic: string
+  matched: number
+  source_scanned: number
+  target_scanned: number
+  unmatched_target: number
+  p50_ms: number | null
+  p95_ms: number | null
+  p99_ms: number | null
+  min_ms: number | null
+  max_ms: number | null
+  mean_ms: number | null
+  buckets: { label: string; count: number }[]
+  negative_count: number
+  note: string
+}
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -736,6 +838,52 @@ export const api = {
   testNotification: () =>
     request<{ results: Record<string, string> }>('/alerts/test-notification', {
       method: 'POST',
+    }),
+
+  dashboards: (cluster: string) =>
+    request<{ dashboards: DashboardModel[] }>(
+      `/clusters/${encodeURIComponent(cluster)}/dashboards`,
+    ),
+
+  createDashboard: (
+    cluster: string,
+    body: { name: string; description?: string | null; panels: PanelSpec[] },
+  ) =>
+    request<DashboardModel>(`/clusters/${encodeURIComponent(cluster)}/dashboards`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  updateDashboard: (
+    cluster: string,
+    id: number,
+    body: { name: string; description?: string | null; panels: PanelSpec[] },
+  ) =>
+    request<DashboardModel>(`/clusters/${encodeURIComponent(cluster)}/dashboards/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
+
+  deleteDashboard: (cluster: string, id: number) =>
+    request<void>(`/clusters/${encodeURIComponent(cluster)}/dashboards/${id}`, {
+      method: 'DELETE',
+    }),
+
+  renderPanels: (cluster: string, panels: PanelSpec[]) =>
+    request<PanelResult[]>(`/clusters/${encodeURIComponent(cluster)}/dashboards/render`, {
+      method: 'POST',
+      body: JSON.stringify(panels),
+    }),
+
+  flowMap: (cluster: string, windowMinutes = 30) =>
+    request<FlowMap>(
+      `/clusters/${encodeURIComponent(cluster)}/flow-map?window_minutes=${windowMinutes}`,
+    ),
+
+  trace: (cluster: string, body: Record<string, unknown>) =>
+    request<TraceResult>(`/clusters/${encodeURIComponent(cluster)}/trace`, {
+      method: 'POST',
+      body: JSON.stringify(body),
     }),
 
   users: () => request<{ users: AppUser[] }>('/users'),
