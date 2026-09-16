@@ -1,0 +1,91 @@
+# Cluster definitions.
+#
+# Copy to config/clusters.yaml and edit. That path is git-ignored.
+#
+# ${VAR} is replaced from the environment, so secrets stay in .env:
+#   ${VAR}            required -- a missing value is a startup error
+#   ${VAR:-default}   optional, with a fallback
+#   $${VAR}           an escaped, literal "${VAR}"
+#
+# Every cluster listed here appears in the header switcher. Nothing about the
+# console assumes one cluster, or a particular naming scheme.
+
+clusters:
+  # --- 1. Plain local broker ------------------------------------------------
+  - name: local
+    label: Local development
+    bootstrap_servers: kafka:9092
+    security_protocol: PLAINTEXT
+    schema_registry:
+      url: http://schema-registry:8081
+
+  # --- 2. Production, read-only, SASL/SCRAM over TLS ------------------------
+  # - name: production
+  #   label: Production
+  #   bootstrap_servers: broker-1:9093,broker-2:9093,broker-3:9093
+  #   security_protocol: SASL_SSL
+  #   # Belt and braces: even an admin cannot write to this cluster.
+  #   read_only: true
+  #   sasl:
+  #     mechanism: SCRAM-SHA-512
+  #     username: ${KAFKA_USERNAME}
+  #     password: ${KAFKA_PASSWORD}
+  #   tls:
+  #     ca_location: /config/certs/ca.pem
+
+  # --- 3. Confluent Cloud ---------------------------------------------------
+  # - name: confluent
+  #   label: Confluent Cloud
+  #   bootstrap_servers: pkc-xxxxx.eu-central-1.aws.confluent.cloud:9092
+  #   security_protocol: SASL_SSL
+  #   sasl:
+  #     mechanism: PLAIN
+  #     username: ${CONFLUENT_API_KEY}
+  #     password: ${CONFLUENT_API_SECRET}
+  #   schema_registry:
+  #     url: https://psrc-xxxxx.eu-central-1.aws.confluent.cloud
+  #     username: ${SCHEMA_REGISTRY_USERNAME}
+  #     password: ${SCHEMA_REGISTRY_PASSWORD}
+
+  # --- 4. AWS MSK with IAM --------------------------------------------------
+  # Requires the image's `msk` extra. See docs/connections.md.
+  # - name: msk
+  #   label: MSK (eu-central-1)
+  #   bootstrap_servers: b-1.example.kafka.eu-central-1.amazonaws.com:9098
+  #   security_protocol: SASL_SSL
+  #   sasl:
+  #     mechanism: AWS_MSK_IAM
+  #     aws_region: eu-central-1
+
+  # --- 5. mTLS --------------------------------------------------------------
+  # - name: mtls
+  #   label: Internal (mutual TLS)
+  #   bootstrap_servers: broker.internal:9094
+  #   security_protocol: SSL
+  #   tls:
+  #     ca_location: /config/certs/ca.pem
+  #     certificate_location: /config/certs/client.pem
+  #     key_location: /config/certs/client.key
+  #     key_password: ${CLIENT_KEY_PASSWORD}
+
+  # --- 6. Masking and flow-map hints ---------------------------------------
+  # - name: with-privacy-rules
+  #   bootstrap_servers: broker:9092
+  #   masking_enabled: true
+  #   mask_rules:
+  #     # Built-in presets: ipv4, ipv6, email, credit_card, jwt
+  #     - preset: email
+  #     - preset: ipv4
+  #       # Limit a rule to certain topics and JMESPath locations.
+  #       topics: ["clickstream", "access-*"]
+  #       paths: ["value.client_ip"]
+  #     - pattern: "ACC-[0-9]{8}"
+  #       replacement: "ACC-********"
+  #
+  #   # Kafka exposes no API mapping producers to topics, so the flow map
+  #   # cannot derive producer edges on its own. Declare them here and they
+  #   # are merged with anything JMX can supply.
+  #   producer_hints:
+  #     checkout-service: ["orders", "payments"]
+  #   group_output_hints:
+  #     order-processor: ["fulfilment"]

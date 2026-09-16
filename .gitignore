@@ -1,0 +1,45 @@
+# --- Secrets & local config -------------------------------------------------
+.env
+.env.local
+config/clusters.yaml
+
+# The University of Debrecen crest is NOT redistributable until permission is
+# confirmed. The `kafkaplay` theme falls back to a text wordmark when absent.
+themes/kafkaplay/logo.svg
+themes/unideb/logo.svg
+
+# --- Python -----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Node -------------------------------------------------------------------
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# --- Test artefacts ---------------------------------------------------------
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# --- Runtime data -----------------------------------------------------------
+*.db
+*.db-wal
+*.db-shm
+data/
+
+# --- Editors / OS -----------------------------------------------------------
+.DS_Store
+.idea/
+.vscode/
+*.swp

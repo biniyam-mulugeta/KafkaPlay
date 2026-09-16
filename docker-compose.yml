@@ -1,0 +1,75 @@
+# Production compose: the console on its own.
+#
+# There is deliberately NO default Docker network here. How the console reaches
+# your brokers is a decision only you can make -- see docs/connections.md for
+# the three supported setups. Uncomment the block that matches yours.
+
+services:
+  console:
+    image: ghcr.io/${GHCR_OWNER:-your-account}/kafkaplay:${KAFKAPLAY_VERSION:-latest}
+    # To build locally instead of pulling:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    container_name: kafkaplay
+    restart: unless-stopped
+
+    # Bound to localhost by default. Put a reverse proxy with TLS in front, or
+    # reach it over an SSH tunnel:  ssh -L 8080:localhost:8080 user@server
+    ports:
+      - "${CONSOLE_BIND:-127.0.0.1}:${CONSOLE_PORT:-8080}:8080"
+
+    environment:
+      APP_NAME: ${APP_NAME:-KafkaPlay}
+      THEME: ${THEME:-kafkaplay}
+      AUTH_MODE: ${AUTH_MODE:-local}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set; see .env.example}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      READ_ONLY: ${READ_ONLY:-false}
+      MASKING_ENABLED: ${MASKING_ENABLED:-true}
+      SECURE_COOKIES: ${SECURE_COOKIES:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_FORMAT: ${LOG_FORMAT:-json}
+      SAMPLER_ENABLED: ${SAMPLER_ENABLED:-true}
+      SAMPLER_INTERVAL_SECONDS: ${SAMPLER_INTERVAL_SECONDS:-30}
+      SAMPLER_RETENTION_DAYS: ${SAMPLER_RETENTION_DAYS:-7}
+      PROMETHEUS_URL: ${PROMETHEUS_URL:-}
+
+    volumes:
+      - kafkaplay_data:/data
+      # Cluster definitions. Secrets stay in the environment, not in this file.
+      - ./config:/config:ro
+      # Optional: mount your own themes without rebuilding the image.
+      # - ./themes:/app/themes:ro
+
+    # --- Networking: pick ONE of the three setups ---------------------------
+    #
+    # (a) Brokers in this same compose project: add them as services and
+    #     reference them by service name. Nothing extra needed here.
+    #
+    # (b) Brokers in ANOTHER compose project, on an existing Docker network.
+    #     Set KAFKA_NETWORK in .env to that network's real name -- there is no
+    #     sensible default, so this file does not invent one. Find it with:
+    #         docker network ls
+    # networks:
+    #   - kafka
+    #
+    # (c) Brokers on the host or a remote host: no extra network needed. Set
+    #     bootstrap_servers in config/clusters.yaml and read the
+    #     advertised.listeners notes in docs/connections.md first.
+
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+# Uncomment together with the `networks:` block on the service for setup (b).
+# networks:
+#   kafka:
+#     external: true
+#     name: ${KAFKA_NETWORK:?set KAFKA_NETWORK to your existing network name}
+
+volumes:
+  kafkaplay_data:

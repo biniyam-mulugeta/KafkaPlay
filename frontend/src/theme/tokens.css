@@ -1,0 +1,181 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens. This file is the single source of truth for colour.
+ *
+ * Two layers, deliberately:
+ *   --kp-*     raw values. Overwritten at runtime by themeLoader.ts from the
+ *              active themes/<name>/theme.json, which is why the image is
+ *              white-labelable without a rebuild.
+ *   --color-*  Tailwind's palette, mapped to the raw layer via @theme inline
+ *              so `bg-brand`, `text-critical` etc. work in markup.
+ *
+ * The values below are the built-in fallback (the kafkaplay theme). They keep
+ * the UI correct for the instant before /api/v1/meta resolves, and if that
+ * request fails entirely.
+ */
+
+/* Dark mode is driven by an explicit attribute, not prefers-color-scheme
+   alone, so the toggle in the header can override the OS setting. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root {
+  --kp-brand: #054434;
+  --kp-brand-hover: #0a5c45;
+  --kp-brand-active: #033327;
+  --kp-brand-tint: #e7f0ec;
+  --kp-brand-contrast: #ffffff;
+
+  --kp-accent: #fbab2c;
+  --kp-accent-tint: #fef3e0;
+  --kp-accent-contrast: #3a2703;
+
+  --kp-bg: #f7f8f8;
+  --kp-surface: #ffffff;
+  --kp-surface-raised: #ffffff;
+  --kp-surface-sunken: #f1f3f2;
+  --kp-border: #dfe3e1;
+  --kp-border-strong: #c2c9c6;
+
+  --kp-text: #14201c;
+  --kp-text-muted: #5a6764;
+  --kp-text-faint: #8a9591;
+  --kp-text-inverse: #ffffff;
+
+  /* Status colours are intentionally NOT derived from the brand. Green is the
+     brand here, so "ok" must not be the only green on screen -- every status
+     is paired with an icon and a shape in the UI, never colour alone. */
+  --kp-ok: #1b7f4b;
+  --kp-ok-tint: #e6f2eb;
+  --kp-warn: #b26a00;
+  --kp-warn-tint: #fbf0df;
+  --kp-critical: #b3261e;
+  --kp-critical-tint: #fbeae9;
+  --kp-info: #1b5e9e;
+  --kp-info-tint: #e6eef6;
+
+  --kp-focus-ring: rgba(5, 68, 52, 0.45);
+  --kp-overlay: rgba(20, 32, 28, 0.45);
+
+  --kp-font-sans: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --kp-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Fallback dark palette, used until themeLoader applies the real one. */
+:root[data-theme='dark'] {
+  --kp-brand: #4fbf8f;
+  --kp-brand-hover: #68cfa2;
+  --kp-brand-active: #3ea97a;
+  --kp-brand-tint: #10231c;
+  --kp-brand-contrast: #052018;
+
+  --kp-accent: #fbab2c;
+  --kp-accent-tint: #2e2109;
+  --kp-accent-contrast: #231703;
+
+  --kp-bg: #0e1512;
+  --kp-surface: #151e1a;
+  --kp-surface-raised: #1b2723;
+  --kp-surface-sunken: #0a100d;
+  --kp-border: #28352f;
+  --kp-border-strong: #3b4c44;
+
+  --kp-text: #e8edea;
+  --kp-text-muted: #a0aea8;
+  --kp-text-faint: #6f7e78;
+  --kp-text-inverse: #0e1512;
+
+  --kp-ok: #4ecb86;
+  --kp-ok-tint: #12241a;
+  --kp-warn: #e2a33c;
+  --kp-warn-tint: #2a1f0c;
+  --kp-critical: #f2685e;
+  --kp-critical-tint: #2b1413;
+  --kp-info: #6fb0ec;
+  --kp-info-tint: #111f2c;
+
+  --kp-focus-ring: rgba(79, 191, 143, 0.55);
+  --kp-overlay: rgba(0, 0, 0, 0.6);
+}
+
+@theme inline {
+  --color-brand: var(--kp-brand);
+  --color-brand-hover: var(--kp-brand-hover);
+  --color-brand-active: var(--kp-brand-active);
+  --color-brand-tint: var(--kp-brand-tint);
+  --color-brand-contrast: var(--kp-brand-contrast);
+
+  --color-accent: var(--kp-accent);
+  --color-accent-tint: var(--kp-accent-tint);
+  --color-accent-contrast: var(--kp-accent-contrast);
+
+  --color-bg: var(--kp-bg);
+  --color-surface: var(--kp-surface);
+  --color-surface-raised: var(--kp-surface-raised);
+  --color-surface-sunken: var(--kp-surface-sunken);
+  --color-border-subtle: var(--kp-border);
+  --color-border-strong: var(--kp-border-strong);
+
+  --color-body: var(--kp-text);
+  --color-muted: var(--kp-text-muted);
+  --color-faint: var(--kp-text-faint);
+  --color-inverse: var(--kp-text-inverse);
+
+  --color-ok: var(--kp-ok);
+  --color-ok-tint: var(--kp-ok-tint);
+  --color-warn: var(--kp-warn);
+  --color-warn-tint: var(--kp-warn-tint);
+  --color-critical: var(--kp-critical);
+  --color-critical-tint: var(--kp-critical-tint);
+  --color-info: var(--kp-info);
+  --color-info-tint: var(--kp-info-tint);
+
+  --font-sans: var(--kp-font-sans);
+  --font-mono: var(--kp-font-mono);
+}
+
+@layer base {
+  * {
+    border-color: var(--kp-border);
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html[data-theme='dark'] {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--kp-bg);
+    color: var(--kp-text);
+    font-family: var(--kp-font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* A visible focus ring on keyboard navigation is a WCAG requirement, and
+     :focus-visible keeps it off mouse clicks. */
+  :focus-visible {
+    outline: 2px solid var(--kp-brand);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px var(--kp-focus-ring);
+    border-radius: 3px;
+  }
+
+  /* Offsets, keys and payloads must never reflow between values. */
+  .tabular {
+    font-family: var(--kp-font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

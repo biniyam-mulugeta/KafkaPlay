@@ -1,0 +1,66 @@
+{
+  "common": {
+    "loading": "Betöltés",
+    "retry": "Újra",
+    "cancel": "Mégse",
+    "save": "Mentés",
+    "close": "Bezárás",
+    "search": "Keresés",
+    "signIn": "Bejelentkezés",
+    "signOut": "Kijelentkezés",
+    "username": "Felhasználónév",
+    "password": "Jelszó",
+    "theme": "Téma",
+    "lightMode": "Világos mód",
+    "darkMode": "Sötét mód",
+    "language": "Nyelv"
+  },
+  "nav": {
+    "overview": "Áttekintés",
+    "topics": "Topicok",
+    "consumerGroups": "Fogyasztói csoportok",
+    "messages": "Üzenetek",
+    "replication": "Replikáció",
+    "dashboards": "Irányítópultok",
+    "flowMap": "Folyamattérkép",
+    "schemas": "Sémák",
+    "acls": "Hozzáférési szabályok",
+    "alerts": "Riasztások",
+    "audit": "Napló",
+    "settings": "Beállítások",
+    "collapseSidebar": "Oldalsáv összecsukása",
+    "expandSidebar": "Oldalsáv kinyitása",
+    "mainNavigation": "Főmenü"
+  },
+  "login": {
+    "title": "Bejelentkezés",
+    "subtitle": "Jelentkezzen be a folytatáshoz: {{product}}.",
+    "invalid": "Hibás felhasználónév vagy jelszó.",
+    "unavailable": "A konzol nem érhető el. Ellenőrizze, hogy fut-e a háttérszolgáltatás.",
+    "submitting": "Bejelentkezés…"
+  },
+  "banner": {
+    "noAuthTitle": "A hitelesítés ki van kapcsolva",
+    "noAuthBody": "Minden látogató teljes rendszergazdai joggal rendelkezik. Az AUTH_MODE=none kizárólag helyi fejlesztéshez használható.",
+    "readOnlyTitle": "Csak olvasható mód",
+    "readOnlyBody": "Ez a konzol nem módosíthat semmit a csatlakoztatott fürtökön."
+  },
+  "clusters": {
+    "switcher": "Fürt",
+    "none": "Nincs beállított fürt",
+    "noneHelp": "Vegyen fel egy fürtöt a config/clusters.yaml fájlba, vagy hozzon létre egyet a Beállításokban.",
+    "readOnly": "csak olvasható"
+  },
+  "errors": {
+    "genericTitle": "Hiba történt",
+    "genericBody": "A kérés nem sikerült. Ez általában átmeneti.",
+    "notFoundTitle": "Az oldal nem található",
+    "notFoundBody": "A kért oldal nem létezik.",
+    "forbiddenTitle": "Nincs jogosultság",
+    "forbiddenBody": "A szerepköre nem engedélyezi ezt a műveletet."
+  },
+  "empty": {
+    "comingSoonTitle": "Még nem készült el",
+    "comingSoonBody": "Ez az oldal egy későbbi mérföldkőben érkezik."
+  }
+}

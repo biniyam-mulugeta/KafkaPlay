@@ -1,0 +1,49 @@
+name: Bug report
+description: Something is not working
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please redact credentials, hostnames, and message content before posting.
+        Security issues go through a private advisory instead — see SECURITY.md.
+  - type: input
+    id: version
+    attributes:
+      label: KafkaPlay version
+      placeholder: "v0.1.0, or the image digest"
+    validations: { required: true }
+  - type: input
+    id: broker
+    attributes:
+      label: Broker
+      description: Kafka version, or the managed provider
+      placeholder: "Apache Kafka 3.9.1 (KRaft) / Redpanda v26.2 / MSK / Confluent Cloud"
+    validations: { required: true }
+  - type: dropdown
+    id: auth
+    attributes:
+      label: Auth mode
+      options: [local, oidc, none]
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected to happen
+    validations: { required: true }
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened
+    validations: { required: true }
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations: { required: true }
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Output of `docker compose logs console`, with secrets removed
+      render: shell

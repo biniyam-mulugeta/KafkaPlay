@@ -1,0 +1,8 @@
+# Cluster definition used by the dev stack (docker-compose.dev.yml).
+clusters:
+  - name: local
+    label: Local dev cluster
+    bootstrap_servers: kafka:9092
+    security_protocol: PLAINTEXT
+    schema_registry:
+      url: http://schema-registry:8081

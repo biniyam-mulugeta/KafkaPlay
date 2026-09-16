@@ -1,0 +1,187 @@
+# Development stack.
+#
+#   make dev                    console + 1 broker + schema registry + seeder
+#   make dev PROFILE=cluster    3 brokers with rack awareness (replication work)
+#   make dev PROFILE=metrics    adds Prometheus + kafka-exporter + JMX
+#
+# The default is a SINGLE broker on purpose: three JVMs do not fit on a laptop
+# with 2 GB free, and most development does not need them.
+
+name: kafkaplay-dev
+
+x-kafka-common: &kafka-common
+  image: apache/kafka:3.9.1
+  healthcheck:
+    test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1"]
+    interval: 10s
+    timeout: 5s
+    retries: 15
+    start_period: 20s
+
+services:
+  console:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kafkaplay-dev
+    restart: unless-stopped
+    ports:
+      - "${CONSOLE_BIND:-127.0.0.1}:${CONSOLE_PORT:-8080}:8080"
+    environment:
+      APP_NAME: ${APP_NAME:-KafkaPlay}
+      THEME: ${THEME:-kafkaplay}
+      AUTH_MODE: ${AUTH_MODE:-local}
+      SESSION_SECRET: ${SESSION_SECRET:-dev-only-secret-change-me-0123456789abcd}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-kafkaplay-dev-password}
+      LOG_FORMAT: console
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      CLUSTERS_FILE: /config/clusters.yaml
+    volumes:
+      - kafkaplay_dev_data:/data
+      - ./deploy/dev/clusters.dev.yaml:/config/clusters.yaml:ro
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks: [kafkaplay]
+
+  kafka:
+    <<: *kafka-common
+    container_name: kafkaplay-kafka-1
+    environment:
+      KAFKA_NODE_ID: "1"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_BROKER_RACK: "rack-a"
+      # Keep the dev JVM small so the stack fits alongside everything else.
+      KAFKA_HEAP_OPTS: "-Xmx512m -Xms256m"
+    volumes:
+      - kafka1_data:/var/lib/kafka/data
+    networks: [kafkaplay]
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.9.1
+    container_name: kafkaplay-schema-registry
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka:9092"
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: "1"
+      SCHEMA_REGISTRY_HEAP_OPTS: "-Xmx320m"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8081/subjects || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+    networks: [kafkaplay]
+
+  seeder:
+    build:
+      context: ./seeder
+      dockerfile: Dockerfile
+    container_name: kafkaplay-seeder
+    restart: unless-stopped
+    depends_on:
+      kafka:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      EVENTS_PER_SECOND: ${SEED_RATE:-25}
+    networks: [kafkaplay]
+
+  # --- profile: cluster ----------------------------------------------------
+  kafka-2:
+    <<: *kafka-common
+    profiles: [cluster]
+    container_name: kafkaplay-kafka-2
+    environment:
+      KAFKA_NODE_ID: "2"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-2:9092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093,2@kafka-2:9093,3@kafka-3:9093"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "3"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "3"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "2"
+      KAFKA_BROKER_RACK: "rack-b"
+      KAFKA_HEAP_OPTS: "-Xmx512m -Xms256m"
+    volumes:
+      - kafka2_data:/var/lib/kafka/data
+    networks: [kafkaplay]
+
+  kafka-3:
+    <<: *kafka-common
+    profiles: [cluster]
+    container_name: kafkaplay-kafka-3
+    environment:
+      KAFKA_NODE_ID: "3"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-3:9092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093,2@kafka-2:9093,3@kafka-3:9093"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "3"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "3"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "2"
+      KAFKA_BROKER_RACK: "rack-c"
+      KAFKA_HEAP_OPTS: "-Xmx512m -Xms256m"
+    volumes:
+      - kafka3_data:/var/lib/kafka/data
+    networks: [kafkaplay]
+
+  # --- profile: metrics ----------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v3.7.3
+    profiles: [metrics]
+    container_name: kafkaplay-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=${PROM_RETENTION:-15d}
+      - --web.enable-lifecycle
+    volumes:
+      - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks: [kafkaplay]
+
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:v1.9.0
+    profiles: [metrics]
+    container_name: kafkaplay-kafka-exporter
+    command: ["--kafka.server=kafka:9092"]
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks: [kafkaplay]
+
+networks:
+  kafkaplay:
+    driver: bridge
+
+volumes:
+  kafkaplay_dev_data:
+  kafka1_data:
+  kafka2_data:
+  kafka3_data:
+  prometheus_data:

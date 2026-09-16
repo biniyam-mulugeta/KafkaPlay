@@ -1,0 +1,83 @@
+[project]
+name = "kafkaplay"
+version = "0.1.0"
+description = "A self-hosted web console for operating any Apache Kafka cluster."
+readme = "../README.md"
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+
+# Every version is pinned exactly. Resolved against PyPI on 2026-09-16.
+dependencies = [
+    "fastapi==0.141.1",
+    "uvicorn[standard]==0.53.0",
+    "pydantic==2.13.5",
+    "pydantic-settings==2.15.0",
+    "sqlmodel==0.0.42",
+    "confluent-kafka==2.15.1",
+    "pyyaml==6.0.3",
+    "structlog==26.1.0",
+    "bcrypt==5.0.0",
+    "itsdangerous==2.2.0",
+    "httpx==0.28.1",
+    "jmespath==1.1.0",
+]
+
+[project.optional-dependencies]
+# Payload codecs. Kept out of the base install so the slim image stays slim;
+# the published image includes them.
+codecs = [
+    "fastavro==1.12.2",
+    "protobuf==7.36.1",
+]
+# OIDC login (Keycloak, Google, GitHub, Entra).
+oidc = [
+    "authlib==1.8.0",
+    "pyjwt[crypto]==2.14.0",
+]
+# AWS MSK IAM authentication. Optional because boto3 is large.
+msk = [
+    "aws-msk-iam-sasl-signer-python==1.0.2",
+]
+dev = [
+    "pytest==9.1.1",
+    "pytest-asyncio==1.4.0",
+    "ruff==0.16.7",
+    "mypy==2.3.1",
+    "types-pyyaml==6.0.12.20260906",
+]
+
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "RUF"]
+ignore = ["A003"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+# Without these, mypy walks up past the repo and can pick the same file up
+# under two module names if any ancestor directory contains an __init__.py.
+mypy_path = "."
+explicit_package_bases = true
+namespace_packages = true
+# confluent_kafka ships no type stubs.
+[[tool.mypy.overrides]]
+module = ["confluent_kafka.*", "jmespath.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "integration: requires a live Kafka broker (skipped when KAFKAPLAY_TEST_BOOTSTRAP is unset)",
+]

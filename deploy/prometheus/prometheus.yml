@@ -1,0 +1,15 @@
+# Optional metrics add-on. The console does NOT need this: the built-in
+# sampler provides lag history, throughput and the heatmap on its own.
+# Prometheus adds broker-level and replication JMX charts.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: kafka-exporter
+    static_configs:
+      - targets: ["kafka-exporter:9308"]
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

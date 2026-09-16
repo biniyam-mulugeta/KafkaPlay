@@ -1,0 +1,66 @@
+{
+  "common": {
+    "loading": "Loading",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "search": "Search",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "username": "Username",
+    "password": "Password",
+    "theme": "Theme",
+    "lightMode": "Light mode",
+    "darkMode": "Dark mode",
+    "language": "Language"
+  },
+  "nav": {
+    "overview": "Overview",
+    "topics": "Topics",
+    "consumerGroups": "Consumer Groups",
+    "messages": "Messages",
+    "replication": "Replication",
+    "dashboards": "Dashboards",
+    "flowMap": "Flow Map",
+    "schemas": "Schemas",
+    "acls": "ACLs",
+    "alerts": "Alerts",
+    "audit": "Audit",
+    "settings": "Settings",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "mainNavigation": "Main navigation"
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Sign in to continue to {{product}}.",
+    "invalid": "Invalid username or password.",
+    "unavailable": "The console is not reachable. Check that the backend is running.",
+    "submitting": "Signing in…"
+  },
+  "banner": {
+    "noAuthTitle": "Authentication is disabled",
+    "noAuthBody": "Every visitor has full administrator rights. Never use AUTH_MODE=none outside local development.",
+    "readOnlyTitle": "Read-only mode",
+    "readOnlyBody": "This console cannot modify anything on the connected clusters."
+  },
+  "clusters": {
+    "switcher": "Cluster",
+    "none": "No clusters configured",
+    "noneHelp": "Add a cluster to config/clusters.yaml, or create one in Settings.",
+    "readOnly": "read-only"
+  },
+  "errors": {
+    "genericTitle": "Something went wrong",
+    "genericBody": "The request failed. This is usually temporary.",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you asked for does not exist.",
+    "forbiddenTitle": "Not permitted",
+    "forbiddenBody": "Your role does not allow this action."
+  },
+  "empty": {
+    "comingSoonTitle": "Not built yet",
+    "comingSoonBody": "This page arrives in a later milestone."
+  }
+}
