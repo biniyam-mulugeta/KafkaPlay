@@ -32,7 +32,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id: string) {
-          if (id.includes('node_modules/echarts')) return 'echarts'
+          // echarts is dynamically imported; let the bundler emit it as its
+          // own lazy chunk rather than forcing it into a static one.
+          if (id.includes('node_modules/echarts')) return undefined
           if (/node_modules\/(react|react-dom|react-router)/.test(id)) return 'react'
           return undefined
         },

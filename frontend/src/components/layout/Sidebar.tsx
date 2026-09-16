@@ -15,6 +15,7 @@ const ITEMS: NavItem[] = [
   { to: '/consumer-groups', labelKey: 'nav.consumerGroups', icon: '⇄' },
   { to: '/messages', labelKey: 'nav.messages', icon: '✉' },
   { to: '/replication', labelKey: 'nav.replication', icon: '⧉' },
+  { to: '/metrics', labelKey: 'nav.metrics', icon: '◴' },
   { to: '/dashboards', labelKey: 'nav.dashboards', icon: '◫' },
   { to: '/flow-map', labelKey: 'nav.flowMap', icon: '⤳' },
   { to: '/schemas', labelKey: 'nav.schemas', icon: '{}' },

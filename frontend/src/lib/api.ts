@@ -248,6 +248,65 @@ export interface SearchParams {
   max_seconds?: number
 }
 
+
+// --- M4: metrics from the built-in sampler --------------------------------
+
+export type LagTrend = 'catching_up' | 'stable' | 'falling_behind' | 'unknown'
+
+export interface SeriesPoint {
+  at: string
+  value: number | null
+}
+
+export interface LagHistory {
+  group_id: string
+  topic: string | null
+  partition: number | null
+  lag: SeriesPoint[]
+  consume_rate: SeriesPoint[]
+  produce_rate: SeriesPoint[]
+  trend: LagTrend
+  lag_velocity: number | null
+  eta_seconds: number | null
+  current_lag: number | null
+  sampled_points: number
+}
+
+export interface ThroughputPoint {
+  at: string
+  messages_per_second: number
+}
+
+export interface TopicThroughput {
+  topic: string
+  points: ThroughputPoint[]
+  average: number | null
+  peak: number | null
+}
+
+export interface HeatmapCell {
+  topic: string
+  partition: number
+  value: number
+}
+
+export interface Heatmap {
+  metric: string
+  topics: string[]
+  max_partition: number
+  cells: HeatmapCell[]
+  max_value: number
+}
+
+export interface SamplerStatus {
+  enabled: boolean
+  interval_seconds: number
+  retention_days: number
+  last_run_at: string | null
+  last_error: string | null
+  prometheus_enabled: boolean
+}
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -381,5 +440,26 @@ export const api = {
     request<{ valid: boolean; error: string | null }>(
       `/clusters/${encodeURIComponent(cluster)}/messages/validate-filter`,
       { method: 'POST', body: JSON.stringify({ filter }) },
+    ),
+
+  samplerStatus: (cluster: string) =>
+    request<SamplerStatus>(`/clusters/${encodeURIComponent(cluster)}/metrics/sampler`),
+
+  lagHistory: (cluster: string, groupId: string, windowMinutes = 60) =>
+    request<LagHistory>(
+      `/clusters/${encodeURIComponent(cluster)}/metrics/consumer-groups/` +
+        `${encodeURIComponent(groupId)}/lag-history?window_minutes=${windowMinutes}`,
+    ),
+
+  topicThroughput: (cluster: string, topic: string, windowMinutes = 60) =>
+    request<TopicThroughput>(
+      `/clusters/${encodeURIComponent(cluster)}/metrics/topics/` +
+        `${encodeURIComponent(topic)}/throughput?window_minutes=${windowMinutes}`,
+    ),
+
+  heatmap: (cluster: string, metric: 'throughput' | 'lag' = 'throughput', windowMinutes = 30) =>
+    request<Heatmap>(
+      `/clusters/${encodeURIComponent(cluster)}/metrics/heatmap` +
+        `?metric=${metric}&window_minutes=${windowMinutes}`,
     ),
 }

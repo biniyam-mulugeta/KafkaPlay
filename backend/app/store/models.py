@@ -80,3 +80,44 @@ class AuditEntry(SQLModel, table=True):
     after: str | None = Field(default=None)
     detail: str | None = Field(default=None)
     source_ip: str | None = Field(default=None)
+
+
+class OffsetSample(SQLModel, table=True):
+    """One observation of a consumer group's position and the log end.
+
+    This is what makes lag history, velocity and throughput work with no
+    Prometheus and no JMX. It stores offsets only -- numbers, never message
+    content -- so it carries no personal data.
+
+    Rows are written by the background sampler and aged out by retention.
+    """
+
+    __tablename__ = "offset_samples"
+
+    id: int | None = Field(default=None, primary_key=True)
+    at: datetime = Field(default_factory=utcnow, index=True)
+    cluster: str = Field(index=True)
+    group_id: str = Field(index=True)
+    topic: str = Field(index=True)
+    partition: int
+    committed_offset: int | None = Field(default=None)
+    high_watermark: int | None = Field(default=None)
+    lag: int | None = Field(default=None)
+
+
+class TopicOffsetSample(SQLModel, table=True):
+    """Log-end offsets per partition, independent of any consumer group.
+
+    Used for topic throughput and the partition heatmap, which must work for
+    topics nobody is consuming.
+    """
+
+    __tablename__ = "topic_offset_samples"
+
+    id: int | None = Field(default=None, primary_key=True)
+    at: datetime = Field(default_factory=utcnow, index=True)
+    cluster: str = Field(index=True)
+    topic: str = Field(index=True)
+    partition: int
+    low_watermark: int | None = Field(default=None)
+    high_watermark: int | None = Field(default=None)

@@ -32,7 +32,8 @@
     "settings": "Settings",
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar",
-    "mainNavigation": "Main navigation"
+    "mainNavigation": "Main navigation",
+    "metrics": "Metrics"
   },
   "login": {
     "title": "Sign in",
@@ -214,5 +215,41 @@
       "cancelled": "cancelled",
       "error": "error"
     }
+  },
+  "metrics": {
+    "subtitle": "From the built-in offset sampler. No Prometheus or JMX required.",
+    "lag": "Lag",
+    "consumeRate": "Consume rate",
+    "produceRate": "Produce rate",
+    "msgPerSec": "msg/s",
+    "perSecond": "/s",
+    "messages": "messages",
+    "currentLag": "Current lag",
+    "eta": "about {{duration}} to catch up",
+    "trend": {
+      "catching_up": "catching up",
+      "stable": "stable",
+      "falling_behind": "falling behind",
+      "unknown": "no trend yet"
+    },
+    "lagChartLabel": "Consumer lag over time with consume and produce rates",
+    "heatmapLabel": "Heatmap of topics by partition",
+    "heatmapTitle": "Partition heatmap",
+    "heatmapHint": "Darker cells are busier. Uneven rows mean partition skew; a single dark cell is a hot partition.",
+    "metric": "Metric",
+    "throughput": "Throughput",
+    "window": "Window",
+    "noSamples": "Not enough samples yet",
+    "noSamplesHelp": "The sampler runs every {{seconds}} seconds. Charts appear once it has collected at least two readings.",
+    "samplerInterval": "Sample interval",
+    "retention": "Retention",
+    "lastSample": "Last sample",
+    "prometheus": "Prometheus",
+    "prometheusOn": "connected",
+    "prometheusOff": "not configured (optional)",
+    "samplerOffTitle": "The built-in sampler is disabled",
+    "samplerOffBody": "Lag history, throughput and the heatmap need it. Set SAMPLER_ENABLED=true to turn it back on.",
+    "samplerErrorTitle": "The last sampling pass failed",
+    "historyTitle": "Lag history"
   }
 }

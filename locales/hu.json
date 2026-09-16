@@ -32,7 +32,8 @@
     "settings": "Beállítások",
     "collapseSidebar": "Oldalsáv összecsukása",
     "expandSidebar": "Oldalsáv kinyitása",
-    "mainNavigation": "Főmenü"
+    "mainNavigation": "Főmenü",
+    "metrics": "Metrikák"
   },
   "login": {
     "title": "Bejelentkezés",
@@ -214,5 +215,41 @@
       "cancelled": "megszakítva",
       "error": "hiba"
     }
+  },
+  "metrics": {
+    "subtitle": "A beépített offset-mintavételezőből. Nincs szükség Prometheusra vagy JMX-re.",
+    "lag": "Lemaradás",
+    "consumeRate": "Fogyasztási ráta",
+    "produceRate": "Termelési ráta",
+    "msgPerSec": "üzenet/mp",
+    "perSecond": "/mp",
+    "messages": "üzenet",
+    "currentLag": "Jelenlegi lemaradás",
+    "eta": "kb. {{duration}} a behozásig",
+    "trend": {
+      "catching_up": "behozza",
+      "stable": "stabil",
+      "falling_behind": "lemarad",
+      "unknown": "még nincs trend"
+    },
+    "lagChartLabel": "Fogyasztói lemaradás időben, fogyasztási és termelési rátával",
+    "heatmapLabel": "Topicok hőtérképe partíciónként",
+    "heatmapTitle": "Partíció hőtérkép",
+    "heatmapHint": "A sötétebb cellák forgalmasabbak. Az egyenetlen sorok partícióeltolódást jeleznek; egyetlen sötét cella forró partíció.",
+    "metric": "Metrika",
+    "throughput": "Átbocsátás",
+    "window": "Időablak",
+    "noSamples": "Még nincs elég minta",
+    "noSamplesHelp": "A mintavételező {{seconds}} másodpercenként fut. A diagramok legalább két mérés után jelennek meg.",
+    "samplerInterval": "Mintavételi időköz",
+    "retention": "Megőrzés",
+    "lastSample": "Utolsó minta",
+    "prometheus": "Prometheus",
+    "prometheusOn": "csatlakoztatva",
+    "prometheusOff": "nincs beállítva (opcionális)",
+    "samplerOffTitle": "A beépített mintavételező ki van kapcsolva",
+    "samplerOffBody": "A lemaradás-előzmény, az átbocsátás és a hőtérkép ezt igényli. Kapcsolja vissza a SAMPLER_ENABLED=true beállítással.",
+    "samplerErrorTitle": "Az utolsó mintavételezés sikertelen volt",
+    "historyTitle": "Lemaradás előzményei"
   }
 }

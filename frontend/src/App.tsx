@@ -8,6 +8,7 @@ import { ConsumerGroups } from '@/pages/ConsumerGroups'
 import { GroupDetail } from '@/pages/GroupDetail'
 import { Login } from '@/pages/Login'
 import { Messages } from '@/pages/Messages'
+import { Metrics } from '@/pages/Metrics'
 import { Overview } from '@/pages/Overview'
 import { Placeholder } from '@/pages/Placeholder'
 import { Replication } from '@/pages/Replication'
@@ -39,6 +40,7 @@ export function App() {
             <Route path="consumer-groups/:groupId" element={<GroupDetail />} />
             <Route path="replication" element={<Replication />} />
             <Route path="messages" element={<Messages />} />
+            <Route path="metrics" element={<Metrics />} />
             <Route
               path="dashboards"
               element={<Placeholder titleKey="nav.dashboards" milestone="M7" />}

@@ -9,6 +9,7 @@ import { DataTable, type Column } from '@/components/table/DataTable'
 import { DegradedBanner, GroupStatePill } from '@/components/states/StatusPill'
 import { EmptyState, Skeleton } from '@/components/states/EmptyState'
 import { LagCell } from '@/pages/ConsumerGroups'
+import { LagChart } from '@/components/charts/LagChart'
 import { NoCluster } from '@/components/states/NoCluster'
 
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
@@ -29,6 +30,13 @@ export function GroupDetail() {
     queryKey: ['group', cluster, groupId],
     queryFn: () => api.group(cluster!, groupId),
     enabled: Boolean(cluster && groupId),
+  })
+
+  const lagHistory = useQuery({
+    queryKey: ['lag-history', cluster, groupId],
+    queryFn: () => api.lagHistory(cluster!, groupId, 60),
+    enabled: Boolean(cluster && groupId),
+    refetchInterval: 15_000,
   })
 
   if (!cluster) return <NoCluster />
@@ -161,6 +169,17 @@ export function GroupDetail() {
               }
             />
           </dl>
+
+          <section className="space-y-2">
+            <h2 className="text-sm font-semibold text-body">{t('metrics.historyTitle')}</h2>
+            <div className="rounded-lg border border-subtle bg-surface p-3">
+              {lagHistory.isPending ? (
+                <Skeleton className="h-60 w-full" />
+              ) : lagHistory.data ? (
+                <LagChart history={lagHistory.data} />
+              ) : null}
+            </div>
+          </section>
 
           <section className="space-y-2">
             <h2 className="text-sm font-semibold text-body">{t('groups.lagByPartition')}</h2>
