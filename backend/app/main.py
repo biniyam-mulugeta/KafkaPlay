@@ -10,6 +10,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import __version__
+from app.api.v1 import admin as admin_routes
+from app.api.v1 import audit as audit_routes
 from app.api.v1 import auth as auth_routes
 from app.api.v1 import brokers as broker_routes
 from app.api.v1 import clusters as cluster_routes
@@ -18,7 +20,9 @@ from app.api.v1 import health as health_routes
 from app.api.v1 import messages as message_routes
 from app.api.v1 import meta as meta_routes
 from app.api.v1 import metrics as metric_routes
+from app.api.v1 import produce as produce_routes
 from app.api.v1 import topics as topic_routes
+from app.api.v1 import users as user_routes
 from app.auth.rbac import AuthorizationError, ReadOnlyError
 from app.auth.sessions import SessionCodec
 from app.bootstrap import ensure_first_admin
@@ -194,6 +198,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     v1.include_router(group_routes.router)
     v1.include_router(message_routes.router)
     v1.include_router(metric_routes.router)
+    v1.include_router(admin_routes.router)
+    v1.include_router(produce_routes.router)
+    v1.include_router(audit_routes.router)
+    v1.include_router(user_routes.router)
     app.include_router(v1)
 
     # WebSockets live outside /api/v1 so the SPA catch-all never shadows them.

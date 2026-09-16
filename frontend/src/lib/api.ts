@@ -307,6 +307,87 @@ export interface SamplerStatus {
   prometheus_enabled: boolean
 }
 
+
+// --- M5: admin, audit, users ----------------------------------------------
+
+export type ResetTo = 'earliest' | 'latest' | 'timestamp' | 'offset' | 'shift'
+export type AuditResult = 'success' | 'denied' | 'failed'
+
+export interface OffsetChange {
+  topic: string
+  partition: number
+  current_offset: number | null
+  target_offset: number
+  low_watermark: number | null
+  high_watermark: number | null
+  messages_skipped: number
+  messages_replayed: number
+}
+
+export interface OffsetResetResponse {
+  group_id: string
+  reset_to: ResetTo
+  changes: OffsetChange[]
+  total_skipped: number
+  total_replayed: number
+  group_state: string
+  member_count: number
+  is_safe: boolean
+  applied: boolean
+  blocked_reason: string | null
+}
+
+export interface ConfigChange {
+  name: string
+  current_value: string | null
+  new_value: string | null
+  is_default: boolean
+}
+
+export interface ConfigDiffResponse {
+  topic: string
+  changes: ConfigChange[]
+  applied: boolean
+}
+
+export interface AuditEntry {
+  id: number
+  at: string
+  username: string
+  role: Role
+  cluster: string | null
+  action: string
+  target: string | null
+  result: AuditResult
+  before: string | null
+  after: string | null
+  detail: string | null
+  source_ip: string | null
+}
+
+export interface AppUser {
+  id: number
+  username: string
+  role: Role
+  provider: string
+  email: string | null
+  display_name: string | null
+  is_active: boolean
+  created_at: string
+  last_login_at: string | null
+}
+
+export interface ReplayResponse {
+  source_topic: string
+  target_topic: string
+  matched: number
+  copied: number
+  scanned: number
+  elapsed_seconds: number
+  stop_reason: string
+  applied: boolean
+}
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -462,4 +543,141 @@ export const api = {
       `/clusters/${encodeURIComponent(cluster)}/metrics/heatmap` +
         `?metric=${metric}&window_minutes=${windowMinutes}`,
     ),
+
+  // --- M5 writes ---
+  createTopic: (
+    cluster: string,
+    body: {
+      name: string
+      partitions: number
+      replication_factor: number
+      configs?: Record<string, string>
+    },
+  ) =>
+    request<{ status: string; topic: string }>(
+      `/clusters/${encodeURIComponent(cluster)}/topics`,
+      { method: 'POST', body: JSON.stringify(body) },
+    ),
+
+  deleteTopic: (cluster: string, topic: string, confirmName: string) =>
+    request<{ status: string }>(
+      `/clusters/${encodeURIComponent(cluster)}/topics/${encodeURIComponent(topic)}`,
+      { method: 'DELETE', body: JSON.stringify({ confirm_name: confirmName }) },
+    ),
+
+  addPartitions: (cluster: string, topic: string, total: number) =>
+    request<{ status: string; partitions: number; warning: string }>(
+      `/clusters/${encodeURIComponent(cluster)}/topics/${encodeURIComponent(topic)}/partitions`,
+      { method: 'POST', body: JSON.stringify({ total_partitions: total }) },
+    ),
+
+  alterConfigs: (
+    cluster: string,
+    topic: string,
+    updates: Record<string, string>,
+    dryRun = true,
+  ) =>
+    request<ConfigDiffResponse>(
+      `/clusters/${encodeURIComponent(cluster)}/topics/${encodeURIComponent(topic)}/configs`,
+      { method: 'POST', body: JSON.stringify({ updates, dry_run: dryRun }) },
+    ),
+
+  resetOffsets: (
+    cluster: string,
+    groupId: string,
+    body: {
+      reset_to: ResetTo
+      topics?: string[] | null
+      target_offset?: number | null
+      timestamp_ms?: number | null
+      shift_by?: number | null
+      dry_run: boolean
+      confirm_group_id?: string | null
+    },
+  ) =>
+    request<OffsetResetResponse>(
+      `/clusters/${encodeURIComponent(cluster)}/consumer-groups/` +
+        `${encodeURIComponent(groupId)}/offsets:reset`,
+      { method: 'POST', body: JSON.stringify(body) },
+    ),
+
+  deleteGroup: (cluster: string, groupId: string) =>
+    request<{ status: string }>(
+      `/clusters/${encodeURIComponent(cluster)}/consumer-groups/${encodeURIComponent(groupId)}`,
+      { method: 'DELETE' },
+    ),
+
+  produce: (
+    cluster: string,
+    body: {
+      topic: string
+      key?: string | null
+      value?: string | null
+      headers?: Record<string, string>
+      partition?: number | null
+      confirm_topic: string
+    },
+  ) =>
+    request<{ topic: string; partition: number; offset: number }>(
+      `/clusters/${encodeURIComponent(cluster)}/produce`,
+      { method: 'POST', body: JSON.stringify(body) },
+    ),
+
+  replay: (
+    cluster: string,
+    body: Record<string, unknown>,
+  ) =>
+    request<ReplayResponse>(`/clusters/${encodeURIComponent(cluster)}/replay`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  electLeaders: (cluster: string) =>
+    request<{ status: string; partitions: number }>(
+      `/clusters/${encodeURIComponent(cluster)}/elect-leaders`,
+      { method: 'POST' },
+    ),
+
+  audit: (params: {
+    cluster?: string
+    action?: string
+    username?: string
+    result?: AuditResult
+    days?: number
+    limit?: number
+    offset?: number
+  }) => {
+    const query = new URLSearchParams()
+    for (const [name, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null && value !== '') query.set(name, String(value))
+    }
+    return request<{ entries: AuditEntry[]; total: number }>(`/audit?${query.toString()}`)
+  },
+
+  auditActions: () => request<{ actions: string[] }>('/audit/actions'),
+
+  users: () => request<{ users: AppUser[] }>('/users'),
+
+  createUser: (body: {
+    username: string
+    password: string
+    role: Role
+    email?: string | null
+    display_name?: string | null
+  }) => request<AppUser>('/users', { method: 'POST', body: JSON.stringify(body) }),
+
+  updateUser: (username: string, body: { role?: Role; is_active?: boolean }) =>
+    request<AppUser>(`/users/${encodeURIComponent(username)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+
+  deleteUser: (username: string) =>
+    request<void>(`/users/${encodeURIComponent(username)}`, { method: 'DELETE' }),
+
+  changePassword: (username: string, body: { current_password?: string; new_password: string }) =>
+    request<void>(`/users/${encodeURIComponent(username)}/password`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
 }

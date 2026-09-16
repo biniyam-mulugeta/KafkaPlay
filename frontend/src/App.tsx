@@ -8,7 +8,9 @@ import { ConsumerGroups } from '@/pages/ConsumerGroups'
 import { GroupDetail } from '@/pages/GroupDetail'
 import { Login } from '@/pages/Login'
 import { Messages } from '@/pages/Messages'
+import { Audit } from '@/pages/Audit'
 import { Metrics } from '@/pages/Metrics'
+import { Settings } from '@/pages/Settings'
 import { Overview } from '@/pages/Overview'
 import { Placeholder } from '@/pages/Placeholder'
 import { Replication } from '@/pages/Replication'
@@ -49,11 +51,8 @@ export function App() {
             <Route path="schemas" element={<Placeholder titleKey="nav.schemas" milestone="M8" />} />
             <Route path="acls" element={<Placeholder titleKey="nav.acls" milestone="M8" />} />
             <Route path="alerts" element={<Placeholder titleKey="nav.alerts" milestone="M6" />} />
-            <Route path="audit" element={<Placeholder titleKey="nav.audit" milestone="M5" />} />
-            <Route
-              path="settings"
-              element={<Placeholder titleKey="nav.settings" milestone="M5" />}
-            />
+            <Route path="audit" element={<Audit />} />
+            <Route path="settings" element={<Settings />} />
             <Route path="404" element={<NotFound />} />
             <Route path="*" element={<Navigate to="/404" replace />} />
           </Route>

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -11,6 +12,8 @@ import { EmptyState, Skeleton } from '@/components/states/EmptyState'
 import { LagCell } from '@/pages/ConsumerGroups'
 import { LagChart } from '@/components/charts/LagChart'
 import { NoCluster } from '@/components/states/NoCluster'
+import { OffsetResetDialog } from '@/components/admin/OffsetResetDialog'
+import { useSession } from '@/lib/session'
 
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -25,6 +28,10 @@ export function GroupDetail() {
   const { t } = useTranslation()
   const cluster = useClusterName()
   const { groupId = '' } = useParams()
+  const { meta, me } = useSession()
+  const [resetting, setResetting] = useState(false)
+  const canReset =
+    !meta.read_only && (me?.role === 'operator' || me?.role === 'admin')
 
   const query = useQuery({
     queryKey: ['group', cluster, groupId],
@@ -138,8 +145,32 @@ export function GroupDetail() {
           </span>
           <span className="text-body">{groupId}</span>
         </nav>
-        <h1 className="font-mono text-lg font-semibold text-body">{groupId}</h1>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="font-mono text-lg font-semibold text-body">{groupId}</h1>
+          {canReset && (
+            <button
+              type="button"
+              onClick={() => setResetting(true)}
+              className="rounded border border-subtle px-2.5 py-1 text-xs text-muted hover:bg-surface-sunken hover:text-body"
+            >
+              {t('reset.openDialog')}
+            </button>
+          )}
+        </div>
       </div>
+
+      {cluster && (
+        <OffsetResetDialog
+          cluster={cluster}
+          groupId={groupId}
+          open={resetting}
+          onClose={() => setResetting(false)}
+          onApplied={() => {
+            void query.refetch()
+            void lagHistory.refetch()
+          }}
+        />
+      )}
 
       <DegradedBanner degraded={query.data?.degraded} />
 
