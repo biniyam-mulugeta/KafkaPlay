@@ -91,7 +91,8 @@
     "mode": "Mód",
     "noBrokers": "Nincs bróker",
     "capabilities": "Bróker képességek",
-    "capabilitiesHint": "Csatlakozáskor észlelve. A nem támogatott funkciók rejtve vagy letiltva jelennek meg."
+    "capabilitiesHint": "Csatlakozáskor észlelve. A nem támogatott funkciók rejtve vagy letiltva jelennek meg.",
+    "internalPartitions": "+{{count}} belső topicokban"
   },
   "topics": {
     "name": "Topic",

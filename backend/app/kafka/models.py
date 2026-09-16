@@ -64,6 +64,7 @@ class ClusterInfo(BaseModel):
     # most operators do not want them in the headline number.
     internal_topic_count: int = 0
     partition_count: int = 0
+    internal_partition_count: int = 0
     under_replicated_partitions: int = 0
     offline_partitions: int = 0
     capabilities: list[Capability] = Field(default_factory=list)

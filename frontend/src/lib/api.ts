@@ -80,6 +80,7 @@ export interface ClusterInfo {
   topic_count: number
   internal_topic_count: number
   partition_count: number
+  internal_partition_count: number
   under_replicated_partitions: number
   offline_partitions: number
   capabilities: Capability[]

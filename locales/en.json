@@ -91,7 +91,8 @@
     "mode": "Mode",
     "noBrokers": "No brokers reported",
     "capabilities": "Broker capabilities",
-    "capabilitiesHint": "Detected when connecting. Features this broker does not support are hidden or disabled."
+    "capabilitiesHint": "Detected when connecting. Features this broker does not support are hidden or disabled.",
+    "internalPartitions": "+{{count}} in internal topics"
   },
   "topics": {
     "name": "Topic",

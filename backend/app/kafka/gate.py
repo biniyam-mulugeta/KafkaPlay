@@ -214,16 +214,24 @@ class KafkaGate:
         topic_count = 0
         internal_count = 0
         partition_count = 0
+        internal_partition_count = 0
         under_replicated = 0
         offline = 0
 
         for name, topic in metadata.topics.items():
-            if is_internal_topic(name):
+            internal = is_internal_topic(name)
+            if internal:
                 internal_count += 1
+                internal_partition_count += len(topic.partitions)
             else:
                 topic_count += 1
+                # Headline counts match the topic count: user topics only.
+                # __consumer_offsets alone adds 50 partitions, which would make
+                # a two-topic cluster look like it has fifty-odd.
+                partition_count += len(topic.partitions)
+            # Health counts deliberately include internal topics: an offline
+            # __consumer_offsets partition breaks every consumer group.
             for partition in topic.partitions.values():
-                partition_count += 1
                 if partition.leader < 0:
                     offline += 1
                 elif len(partition.isrs) < len(partition.replicas):
@@ -243,6 +251,7 @@ class KafkaGate:
             topic_count=topic_count,
             internal_topic_count=internal_count,
             partition_count=partition_count,
+            internal_partition_count=internal_partition_count,
             under_replicated_partitions=under_replicated,
             offline_partitions=offline,
             capabilities=sorted(await self.capabilities()),

@@ -73,6 +73,21 @@ class TestClusterDescription:
         assert info.partition_count >= PARTITIONS
         assert info.topic_count >= 1
 
+    async def test_partition_count_excludes_internal_topics(
+        self, gate: KafkaGate, seeded_topic: str
+    ) -> None:
+        """The headline number must match the topics it sits next to.
+
+        __consumer_offsets has 50 partitions by default; counting it made a
+        two-topic cluster report fifty-odd partitions.
+        """
+        info = await gate.describe_cluster()
+        user_topics = await gate.list_topics(include_internal=False)
+        assert info.partition_count == sum(t.partition_count for t in user_topics)
+        all_topics = await gate.list_topics(include_internal=True)
+        internal = sum(t.partition_count for t in all_topics if t.is_internal)
+        assert info.internal_partition_count == internal
+
     async def test_healthy_cluster_has_no_offline_partitions(self, gate: KafkaGate) -> None:
         info = await gate.describe_cluster()
         assert info.offline_partitions == 0

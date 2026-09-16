@@ -136,6 +136,13 @@ export function Overview() {
             <Stat
               label={t('overview.partitions')}
               value={formatNumber(data?.partition_count ?? 0)}
+              hint={
+                data?.internal_partition_count
+                  ? t('overview.internalPartitions', {
+                      count: data.internal_partition_count,
+                    })
+                  : undefined
+              }
             />
             <Stat
               label={t('overview.underReplicated')}
