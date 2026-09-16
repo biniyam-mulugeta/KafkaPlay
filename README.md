@@ -4,7 +4,7 @@ A self-hosted web console for operating **any** Apache Kafka cluster — self-ma
 
 Browse topics and messages, watch consumer lag over time, reset offsets safely, and build your own dashboards. Apache-2.0 licensed, no telemetry, no external calls.
 
-> **Status: in development.** Milestone 1 (skeleton, theming, auth) is complete. Topics, messages, and metrics land in milestones 2–4. See [Roadmap](#roadmap).
+> **Status: feature-complete, pre-1.0.** All nine milestones are implemented and tested against live Kafka 3.9 in CI, alongside Kafka 4.x and Redpanda. Expect rough edges before 1.0; please report them.
 
 ---
 
@@ -128,21 +128,25 @@ Interface languages: English and Hungarian (`DEFAULT_LOCALE`).
 
 ---
 
-## Roadmap
+## What's in it
 
-| Milestone | Contents | Status |
-|---|---|---|
-| 1 | Skeleton, theming, i18n, auth, CI | ✅ done |
-| 2 | Cluster overview, topics, consumer groups + lag, replication | next |
-| 3 | Message browser, JMESPath search, live tail, masking | |
-| 4 | Built-in sampler, lag history, heatmap, optional Prometheus | |
-| 5 | Admin actions with dry-run, config drift, audit log, roles | |
-| 6 | Alert rules, notification centre, webhook/Slack/Teams/SMTP | |
-| 7 | Custom dashboards, topic flow map, latency tracer | |
-| 8 | OIDC, Schema Registry browser, ACLs, command palette | |
-| 9 | Accessibility, docs, screenshots, release | |
-
----
+| Area | Features |
+|---|---|
+| **Cluster** | Brokers, KRaft controller, capability detection, partition health, read-only mode |
+| **Topics** | Searchable list, per-partition leader/replicas/ISR/watermarks, configs with non-defaults highlighted, consumer groups per topic |
+| **Consumer groups** | State, members, assignments, lag per partition and total — all from the AdminClient, never a shadow consumer |
+| **Messages** | Browse from newest/oldest/offset/timestamp, JMESPath filter DSL, scan budgets, live tail over WebSocket, JSON/Avro/text/hex decoding |
+| **Metrics** | Lag history, lag velocity and time-to-catch-up, throughput, partition heatmap — from the built-in sampler, no Prometheus needed |
+| **Replication** | Replica matrix, RF vs `min.insync.replicas` headroom, broker balance, preferred-leader election |
+| **Admin** | Topic CRUD, incremental config changes with diff, offset reset with dry-run and typed confirmation, produce, replay |
+| **Alerts** | Six rule kinds with debounce and cooldown, notification centre, webhook (HMAC-signed), Slack, Teams, SMTP |
+| **Dashboards** | Build your own panels: throughput, split-by, histogram with thresholds, top-N, single stat. Export/import as JSON |
+| **Flow map** | Topics → consumer groups → topics, with measured edges marked apart from declared ones |
+| **Latency tracer** | Correlate two topics by key and report p50/p95/p99 |
+| **Schemas** | Subjects, versions, diffs, compatibility checks |
+| **ACLs** | List, filter, create, delete — with an honest message when no authorizer exists |
+| **Security** | Local + OIDC auth, three roles, CSRF, full audit log, masking on by default |
+| **UX** | Command palette (⌘K), light/dark themes, English + Hungarian, WCAG AA contrast enforced by tests |
 
 ## Development
 
