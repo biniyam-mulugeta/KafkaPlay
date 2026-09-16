@@ -12,6 +12,7 @@ from app.auth.rbac import ANONYMOUS_ADMIN, Principal
 from app.auth.sessions import CSRF_HEADER, SAFE_METHODS, SessionCodec, csrf_matches
 from app.clusters.registry import ClusterRegistry, UnknownClusterError
 from app.config import Settings
+from app.kafka.gates import GateRegistry
 from app.store.models import Role, User
 
 
@@ -30,6 +31,11 @@ def get_session_codec(request: Request) -> SessionCodec:
     return codec
 
 
+def get_gates(request: Request) -> GateRegistry:
+    gates: GateRegistry = request.app.state.gates
+    return gates
+
+
 def get_db(request: Request) -> Iterator[Session]:
     session = Session(request.app.state.engine)
     try:
@@ -41,6 +47,7 @@ def get_db(request: Request) -> Iterator[Session]:
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 RegistryDep = Annotated[ClusterRegistry, Depends(get_registry)]
 DbDep = Annotated[Session, Depends(get_db)]
+GatesDep = Annotated[GateRegistry, Depends(get_gates)]
 
 
 def get_principal(
@@ -110,10 +117,14 @@ def require_admin(principal: PrincipalDep) -> Principal:
 AdminDep = Annotated[Principal, Depends(require_admin)]
 
 
-def resolve_cluster(name: str, registry: RegistryDep) -> str:
-    """Validate a cluster path parameter, returning its name."""
+def resolve_cluster(cluster: str, registry: RegistryDep) -> str:
+    """Validate the {cluster} path parameter, returning its name.
+
+    The argument name must match the path parameter exactly, or FastAPI treats
+    it as a required query parameter and every route 422s.
+    """
     try:
-        registry.get(name)
+        registry.get(cluster)
     except UnknownClusterError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    return name
+    return cluster

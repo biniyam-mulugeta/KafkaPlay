@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useSession } from '@/lib/session'
 import { LOCALE_LABELS, SUPPORTED_LOCALES, persistLocale, type Locale } from '@/i18n'
+import { ClusterSwitcher } from '@/components/layout/ClusterSwitcher'
 
 /** Logo slot: the crest is optional, so fall back to a text wordmark. */
 function Brand() {
@@ -36,6 +37,8 @@ export function Header() {
       <Brand />
 
       <div className="flex-1" />
+
+      <ClusterSwitcher />
 
       {meta.read_only && (
         <span className="rounded border border-warn px-2 py-0.5 text-xs font-medium text-warn">

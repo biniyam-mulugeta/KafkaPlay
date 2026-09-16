@@ -11,15 +11,19 @@ from fastapi.staticfiles import StaticFiles
 
 from app import __version__
 from app.api.v1 import auth as auth_routes
+from app.api.v1 import brokers as broker_routes
 from app.api.v1 import clusters as cluster_routes
+from app.api.v1 import groups as group_routes
 from app.api.v1 import health as health_routes
 from app.api.v1 import meta as meta_routes
+from app.api.v1 import topics as topic_routes
 from app.auth.rbac import AuthorizationError, ReadOnlyError
 from app.auth.sessions import SessionCodec
 from app.bootstrap import ensure_first_admin
 from app.clusters.loader import ClusterConfigError
 from app.clusters.registry import ClusterRegistry, UnknownClusterError
 from app.config import Settings, load_settings
+from app.kafka.gates import GateRegistry
 from app.logging import configure_logging, get_logger
 from app.store.session import create_db_engine, init_db
 
@@ -43,6 +47,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         log.error("cluster_config_invalid", error=str(exc))
         raise
     app.state.registry = registry
+
+    app.state.gates = GateRegistry(
+        registry,
+        timeout_seconds=settings.admin_timeout_seconds,
+        cache_ttl_seconds=settings.admin_cache_ttl_seconds,
+        pool_size=settings.admin_pool_size,
+    )
 
     app.state.session_codec = SessionCodec(
         secret=settings.session_secret,
@@ -69,6 +80,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     yield
 
+    app.state.gates.close()
     engine.dispose()
     log.info("shutdown_complete")
 
@@ -158,6 +170,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     v1.include_router(meta_routes.router)
     v1.include_router(auth_routes.router)
     v1.include_router(cluster_routes.router)
+    v1.include_router(broker_routes.router)
+    v1.include_router(topic_routes.router)
+    v1.include_router(group_routes.router)
     app.include_router(v1)
 
     _register_exception_handlers(app)
