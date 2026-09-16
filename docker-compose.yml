@@ -83,12 +83,15 @@ services:
     # networks:
     #   - kafka
     #
-    # For a broker on this host, use host.docker.internal:9092 and uncomment:
-    # extra_hosts:
-    #   - "host.docker.internal:host-gateway"
+    # For a broker running directly on this machine (not in Docker), use
+    # host.docker.internal as its address. This mapping makes that name work
+    # on plain Linux Docker too; Docker Desktop already provides it.
     #
     # A remote broker needs nothing special -- just its address.
     # See docs/connections.md for the advertised.listeners pitfalls.
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
     security_opt:
       - no-new-privileges:true
