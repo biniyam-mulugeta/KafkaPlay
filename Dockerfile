@@ -21,7 +21,9 @@ RUN --mount=type=cache,target=/root/.npm \
 COPY locales/ ./locales/
 COPY frontend/ ./frontend/
 
-RUN cd frontend && npx tsc --noEmit && npx vite build
+# tsconfig.build.json covers only shipped code; test fixtures live outside
+# this stage's build context. Tests are typechecked by CI and `make lint`.
+RUN cd frontend && npx tsc --noEmit -p tsconfig.build.json && npx vite build
 
 # ---------------------------------------------------------------------------
 # Stage 2 -- runtime

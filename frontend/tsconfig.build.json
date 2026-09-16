@@ -1,0 +1,12 @@
+{
+  // Production typecheck: only the code that actually ships.
+  //
+  // The full tsconfig.json also covers test/, which imports fixtures from
+  // outside the frontend directory (themes/*.json). Those are deliberately not
+  // copied into the image build stage, so typechecking them there would fail
+  // on files the image never contains. Tests are still fully typechecked by
+  // `make lint` and by CI.
+  "extends": "./tsconfig.json",
+  "include": ["src", "vite.config.ts"],
+  "exclude": ["test", "vitest.config.ts", "playwright.config.ts"]
+}
