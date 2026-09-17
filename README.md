@@ -21,7 +21,7 @@ It is also careful with your brokers: lag comes from the AdminClient rather than
 ## Quick start
 
 ```bash
-git clone https://github.com/<your-account>/kafkaplay.git
+git clone https://github.com/biniyam-mulugeta/kafkaplay.git
 cd kafkaplay
 docker compose up -d --build
 ```

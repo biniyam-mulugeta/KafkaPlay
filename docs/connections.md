@@ -22,7 +22,7 @@ Simplest case. Add the console to your existing `docker-compose.yml` and referen
 ```yaml
 services:
   console:
-    image: ghcr.io/<owner>/kafkaplay:latest
+    image: ghcr.io/biniyam-mulugeta/kafkaplay:latest
     ports: ["127.0.0.1:8080:8080"]
     environment:
       SESSION_SECRET: ${SESSION_SECRET}

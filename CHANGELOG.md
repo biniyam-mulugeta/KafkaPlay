@@ -97,4 +97,4 @@ a user:
 - An admin cannot demote, deactivate or delete their own account, and the last
   active admin cannot be removed.
 
-[Unreleased]: https://github.com/<owner>/kafkaplay/compare/main...HEAD
+[Unreleased]: https://github.com/biniyam-mulugeta/kafkaplay/compare/main...HEAD
