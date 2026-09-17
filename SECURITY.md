@@ -55,4 +55,4 @@ These are properties we intend to hold, and a break in any of them is a vulnerab
 
 ## Supply chain
 
-Every dependency is pinned exactly. Release images are built multi-arch in CI, scanned with Trivy, and published with provenance and an SBOM.
+Every dependency is pinned exactly. No prebuilt image is published: you build the image yourself from this source with `docker compose up -d --build`, so what runs is exactly what you can read here.

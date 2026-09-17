@@ -1,8 +1,7 @@
 """Integration tests against a real broker.
 
-These run in CI across Kafka 3.9, Kafka 4.x and Redpanda. Locally they skip
-unless KAFKAPLAY_TEST_BOOTSTRAP points at a broker, so `make test` stays green
-for contributors with nothing running.
+They skip unless KAFKAPLAY_TEST_BOOTSTRAP points at a broker, so `make test`
+stays green for contributors with nothing running.
 
 The point of this module in M1 is to prove the connection path and capability
 detection work on every broker in the matrix. Topic and group features arrive

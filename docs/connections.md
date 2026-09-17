@@ -17,15 +17,13 @@ docker exec <broker> /opt/kafka/bin/kafka-broker-api-versions.sh \
 
 ### (a) Brokers in the same compose project
 
-Simplest case. Add the console to your existing `docker-compose.yml` and reference brokers by service name.
+Simplest case. Add the console to your existing `docker-compose.yml` and reference brokers by service name. `build` points at your clone of this repository.
 
 ```yaml
 services:
   console:
-    image: ghcr.io/biniyam-mulugeta/kafkaplay:latest
+    build: ../KafkaPlay
     ports: ["127.0.0.1:8080:8080"]
-    environment:
-      SESSION_SECRET: ${SESSION_SECRET}
     volumes:
       - ./config:/config:ro
       - kafkaplay_data:/data

@@ -25,7 +25,7 @@ make lint        # ruff, mypy --strict, eslint, tsc
 make test        # backend + frontend unit tests
 ```
 
-Both must pass. CI runs the same checks plus an integration matrix against Kafka 3.9, Kafka 4.x, and Redpanda, and a Playwright smoke test.
+Both must pass. There is no hosted CI, so these local runs are the only check before review. If you changed anything that talks to Kafka, also run the integration tests against a broker (`KAFKAPLAY_TEST_BOOTSTRAP=localhost:9092 make test-integration`).
 
 Integration tests need a broker and skip cleanly without one:
 

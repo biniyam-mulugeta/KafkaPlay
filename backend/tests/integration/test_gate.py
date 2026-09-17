@@ -1,7 +1,6 @@
 """KafkaGate against a live broker.
 
-Runs in CI across Kafka 3.9, Kafka 4.x and Redpanda, and locally whenever
-KAFKAPLAY_TEST_BOOTSTRAP is set. Skipped otherwise.
+Runs whenever KAFKAPLAY_TEST_BOOTSTRAP is set. Skipped otherwise.
 
 These cover the paths that unit tests with fakes cannot: real metadata shapes,
 real offset semantics, and the capability differences between broker

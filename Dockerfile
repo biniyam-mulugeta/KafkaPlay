@@ -22,7 +22,7 @@ COPY locales/ ./locales/
 COPY frontend/ ./frontend/
 
 # tsconfig.build.json covers only shipped code; test fixtures live outside
-# this stage's build context. Tests are typechecked by CI and `make lint`.
+# this stage's build context. Tests are typechecked by `make lint`.
 RUN cd frontend && npx tsc --noEmit -p tsconfig.build.json && npx vite build
 
 # ---------------------------------------------------------------------------

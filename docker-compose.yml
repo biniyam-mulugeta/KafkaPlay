@@ -14,8 +14,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # Published images are also available once you have pushed one:
-    #   image: ghcr.io/biniyam-mulugeta/kafkaplay:latest
     image: kafkaplay:local
     container_name: kafkaplay
     restart: unless-stopped

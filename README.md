@@ -4,7 +4,7 @@ A self-hosted web console for operating **any** Apache Kafka cluster — self-ma
 
 Browse topics and messages, watch consumer lag over time, reset offsets safely, and build your own dashboards. Apache-2.0 licensed, no telemetry, no external calls.
 
-> **Status: feature-complete, pre-1.0.** All nine milestones are implemented and tested against live Kafka 3.9 in CI, alongside Kafka 4.x and Redpanda. Expect rough edges before 1.0; please report them.
+> **Status: feature-complete, pre-1.0.** All nine milestones are implemented, with unit tests and integration tests against a live Kafka broker. Expect rough edges before 1.0; please report them.
 
 ---
 
@@ -329,7 +329,7 @@ Integration tests need a broker and skip without one:
 KAFKAPLAY_TEST_BOOTSTRAP=localhost:9092 make test-integration
 ```
 
-CI runs the integration suite against Kafka 3.9, Kafka 4.x, and Redpanda.
+There is no hosted CI, so please run `make lint` and `make test` (and the integration tests, if you touched the Kafka layer) before opening a pull request.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
