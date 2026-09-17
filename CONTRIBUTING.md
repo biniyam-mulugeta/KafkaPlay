@@ -5,8 +5,8 @@ Thanks for considering a contribution.
 ## Getting set up
 
 ```bash
-git clone https://github.com/biniyam-mulugeta/kafkaplay.git
-cd kafkaplay
+git clone https://github.com/biniyam-mulugeta/KafkaPlay.git
+cd KafkaPlay
 make install     # venv + npm install
 make dev         # broker, schema registry, seeder, console
 ```

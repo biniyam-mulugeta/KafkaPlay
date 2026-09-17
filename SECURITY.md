@@ -13,7 +13,7 @@ While the project is pre-1.0, only the latest released version receives security
 
 **Please do not open a public issue for a security problem.**
 
-Report privately through [GitHub Security Advisories](https://github.com/biniyam-mulugeta/kafkaplay/security/advisories/new), which lets us discuss and fix the issue before it becomes public.
+Report privately through [GitHub Security Advisories](https://github.com/biniyam-mulugeta/KafkaPlay/security/advisories/new), which lets us discuss and fix the issue before it becomes public.
 
 Please include:
 
