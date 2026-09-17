@@ -25,7 +25,7 @@ PARTITIONS = 3
 @pytest.fixture
 def scan_topic(bootstrap_servers: str) -> Iterator[str]:
     """Known messages: statuses, an IP, and one non-JSON record."""
-    name = f"kafkaplay-scan-{uuid.uuid4().hex[:8]}"
+    name = f"offsetscope-scan-{uuid.uuid4().hex[:8]}"
     admin = AdminClient({"bootstrap.servers": bootstrap_servers})
     admin.create_topics([NewTopic(name, num_partitions=PARTITIONS, replication_factor=1)])[
         name
@@ -254,5 +254,5 @@ class TestScanIsolation:
         )
 
         after = {g.group_id for g in admin.list_consumer_groups(request_timeout=15).result().valid}
-        new_groups = {g for g in after - before if g.startswith("kafkaplay-scan-")}
+        new_groups = {g for g in after - before if g.startswith("offsetscope-scan-")}
         assert not new_groups, f"scan leaked consumer groups: {new_groups}"

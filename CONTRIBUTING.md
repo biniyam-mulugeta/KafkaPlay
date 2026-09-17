@@ -5,8 +5,8 @@ Thanks for considering a contribution.
 ## Getting set up
 
 ```bash
-git clone https://github.com/biniyam-mulugeta/KafkaPlay.git
-cd KafkaPlay
+git clone https://github.com/biniyam-mulugeta/Offsetscope.git
+cd Offsetscope
 make install     # venv + npm install
 make dev         # broker, schema registry, seeder, console
 ```
@@ -25,12 +25,12 @@ make lint        # ruff, mypy --strict, eslint, tsc
 make test        # backend + frontend unit tests
 ```
 
-Both must pass. There is no hosted CI, so these local runs are the only check before review. If you changed anything that talks to Kafka, also run the integration tests against a broker (`KAFKAPLAY_TEST_BOOTSTRAP=localhost:9092 make test-integration`).
+Both must pass. There is no hosted CI, so these local runs are the only check before review. If you changed anything that talks to Kafka, also run the integration tests against a broker (`OFFSETSCOPE_TEST_BOOTSTRAP=localhost:9092 make test-integration`).
 
 Integration tests need a broker and skip cleanly without one:
 
 ```bash
-KAFKAPLAY_TEST_BOOTSTRAP=localhost:9092 make test-integration
+OFFSETSCOPE_TEST_BOOTSTRAP=localhost:9092 make test-integration
 ```
 
 ## House rules

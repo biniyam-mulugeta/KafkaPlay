@@ -42,7 +42,7 @@ def ops(gate: KafkaGate) -> KafkaAdminOps:
 
 @pytest.fixture
 def temp_topic(bootstrap_servers: str) -> Iterator[str]:
-    name = f"kafkaplay-admin-{uuid.uuid4().hex[:8]}"
+    name = f"offsetscope-admin-{uuid.uuid4().hex[:8]}"
     admin = AdminClient({"bootstrap.servers": bootstrap_servers})
     admin.create_topics([NewTopic(name, num_partitions=2, replication_factor=1)])[name].result(
         timeout=30
@@ -60,7 +60,7 @@ def temp_topic(bootstrap_servers: str) -> Iterator[str]:
 
 class TestTopicLifecycle:
     async def test_create_describe_delete(self, ops: KafkaAdminOps, gate: KafkaGate) -> None:
-        name = f"kafkaplay-life-{uuid.uuid4().hex[:8]}"
+        name = f"offsetscope-life-{uuid.uuid4().hex[:8]}"
         await ops.create_topic(name, partitions=3, replication_factor=1)
 
         detail = await gate.describe_topic(name, with_watermarks=False)
@@ -69,7 +69,7 @@ class TestTopicLifecycle:
         await ops.delete_topic(name)
 
     async def test_create_with_configs(self, ops: KafkaAdminOps, gate: KafkaGate) -> None:
-        name = f"kafkaplay-cfg-{uuid.uuid4().hex[:8]}"
+        name = f"offsetscope-cfg-{uuid.uuid4().hex[:8]}"
         await ops.create_topic(
             name, partitions=1, replication_factor=1, configs={"retention.ms": "60000"}
         )
@@ -119,7 +119,7 @@ class TestConfigChanges:
 @pytest.fixture
 def lagging_group(bootstrap_servers: str, temp_topic: str) -> Iterator[str]:
     """A group with committed offsets and no live members."""
-    group_id = f"kafkaplay-reset-{uuid.uuid4().hex[:8]}"
+    group_id = f"offsetscope-reset-{uuid.uuid4().hex[:8]}"
     consumer = Consumer(
         {
             "bootstrap.servers": bootstrap_servers,

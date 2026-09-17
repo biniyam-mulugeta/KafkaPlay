@@ -1,7 +1,7 @@
 /**
  * Applies a theme fetched from the backend onto the document.
  *
- * The bundle ships with the kafkaplay palette as a CSS fallback; this
+ * The bundle ships with the offsetscope palette as a CSS fallback; this
  * overwrites the --kp-* custom properties at runtime so an operator can mount
  * their own themes/<name>/theme.json and rebrand without rebuilding the image.
  */
@@ -23,7 +23,7 @@ export interface ThemeInfo {
   fonts: Record<string, string>
 }
 
-const STORAGE_KEY = 'kafkaplay.color-mode'
+const STORAGE_KEY = 'offsetscope.color-mode'
 
 /** Token names are written into the DOM, so constrain them to a safe shape. */
 const SAFE_TOKEN = /^[a-z0-9-]+$/

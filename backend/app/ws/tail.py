@@ -86,7 +86,7 @@ async def tail_topic(
         client_config = build_client_config(config, settings.admin_timeout_seconds)
         client_config.update(
             {
-                "group.id": f"kafkaplay-tail-{int(time.time() * 1000)}",
+                "group.id": f"offsetscope-tail-{int(time.time() * 1000)}",
                 "enable.auto.commit": False,
                 "auto.offset.reset": "latest",
             }

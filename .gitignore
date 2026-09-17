@@ -4,8 +4,8 @@
 config/clusters.yaml
 
 # The University of Debrecen crest is NOT redistributable until permission is
-# confirmed. The `kafkaplay` theme falls back to a text wordmark when absent.
-themes/kafkaplay/logo.svg
+# confirmed. The `offsetscope` theme falls back to a text wordmark when absent.
+themes/offsetscope/logo.svg
 themes/unideb/logo.svg
 
 # --- Python -----------------------------------------------------------------

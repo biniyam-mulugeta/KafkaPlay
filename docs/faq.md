@@ -44,7 +44,7 @@ Stop the console, delete the user row, and restart — the bootstrap admin is re
 
 ```bash
 docker compose exec console python -c \
-  "import sqlite3; sqlite3.connect('/data/kafkaplay.db').execute('DELETE FROM users').connection.commit()"
+  "import sqlite3; sqlite3.connect('/data/offsetscope.db').execute('DELETE FROM users').connection.commit()"
 docker compose restart console
 ```
 
@@ -58,7 +58,7 @@ Your `clusters.yaml` references `${VAR}` values that are not set. The error name
 
 ### Can I rebrand it?
 
-Yes. `APP_NAME` renames the product, and `THEME` selects a directory under `/app/themes` holding colours, fonts, a logo, and a favicon. Mount your own to rebrand with no rebuild. The name "KafkaPlay" appears only in the repository and image name.
+Yes. `APP_NAME` renames the product, and `THEME` selects a directory under `/app/themes` holding colours, fonts, a logo, and a favicon. Mount your own to rebrand with no rebuild. The name "Offsetscope" appears only in the repository and image name.
 
 ### Is there telemetry?
 

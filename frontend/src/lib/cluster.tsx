@@ -19,7 +19,7 @@ import { useQuery } from '@tanstack/react-query'
 
 import { api, type ClusterSummary } from '@/lib/api'
 
-const STORAGE_KEY = 'kafkaplay.cluster'
+const STORAGE_KEY = 'offsetscope.cluster'
 
 interface ClusterValue {
   clusters: ClusterSummary[]

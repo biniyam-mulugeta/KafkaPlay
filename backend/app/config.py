@@ -75,8 +75,8 @@ class Settings(BaseSettings):
     )
 
     # --- Identity & appearance ---------------------------------------------
-    app_name: str = Field(default="KafkaPlay", description="Product name shown in the UI.")
-    theme: str = Field(default="kafkaplay", description="Directory name under themes/.")
+    app_name: str = Field(default="Offsetscope", description="Product name shown in the UI.")
+    theme: str = Field(default="offsetscope", description="Directory name under themes/.")
     themes_dir: Path = Field(default=Path("themes"))
     default_locale: str = Field(default="en")
     static_dir: Path = Field(
@@ -117,8 +117,8 @@ class Settings(BaseSettings):
         description="Where a generated session secret is persisted.",
     )
     session_max_age_seconds: int = Field(default=60 * 60 * 12, ge=60)
-    session_cookie_name: str = Field(default="kafkaplay_session")
-    csrf_cookie_name: str = Field(default="kafkaplay_csrf")
+    session_cookie_name: str = Field(default="offsetscope_session")
+    csrf_cookie_name: str = Field(default="offsetscope_csrf")
     secure_cookies: bool = Field(
         default=False,
         description="Set true when serving over HTTPS so cookies carry the Secure flag.",
@@ -159,7 +159,7 @@ class Settings(BaseSettings):
     )
 
     # --- Storage ------------------------------------------------------------
-    database_url: str = Field(default="sqlite:///./data/kafkaplay.db")
+    database_url: str = Field(default="sqlite:///./data/offsetscope.db")
 
     # --- Clusters -----------------------------------------------------------
     clusters_file: Path = Field(default=Path("config/clusters.yaml"))

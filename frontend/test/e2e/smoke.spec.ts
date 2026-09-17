@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
-const USERNAME = process.env.KAFKAPLAY_E2E_USER ?? 'admin'
-const PASSWORD = process.env.KAFKAPLAY_E2E_PASSWORD ?? 'kafkaplay-dev-password'
+const USERNAME = process.env.OFFSETSCOPE_E2E_USER ?? 'admin'
+const PASSWORD = process.env.OFFSETSCOPE_E2E_PASSWORD ?? 'offsetscope-dev-password'
 
 test.describe('smoke', () => {
   test('health endpoint responds', async ({ request }) => {

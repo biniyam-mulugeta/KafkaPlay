@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Renamed the project from KafkaPlay to **Offsetscope**. The image, container,
+  Docker volume (`offsetscope_data`), database file, default theme, cookies,
+  webhook signature header (`X-Offsetscope-Signature`) and test environment
+  variables (`OFFSETSCOPE_*`) all use the new name.
+
 First feature-complete state. Everything below is implemented, tested, and
 verified against a live Kafka 3.9.1 KRaft broker.
 
@@ -97,4 +104,4 @@ a user:
 - An admin cannot demote, deactivate or delete their own account, and the last
   active admin cannot be removed.
 
-[Unreleased]: https://github.com/biniyam-mulugeta/KafkaPlay/compare/main...HEAD
+[Unreleased]: https://github.com/biniyam-mulugeta/Offsetscope/compare/main...HEAD

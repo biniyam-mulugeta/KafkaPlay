@@ -108,8 +108,8 @@ class TestMeta:
 
     def test_meta_reports_theme(self, client: TestClient) -> None:
         body = client.get("/api/v1/meta").json()
-        assert body["theme"]["name"] == "kafkaplay"
-        assert body["theme"]["product_name"] == "KafkaPlay"
+        assert body["theme"]["name"] == "offsetscope"
+        assert body["theme"]["product_name"] == "Offsetscope"
         assert body["theme"]["colors"]["light"]["brand"] == "#054434"
 
     def test_missing_logo_degrades_to_none(self, client: TestClient) -> None:
@@ -130,7 +130,7 @@ class TestMeta:
         with TestClient(create_app(broken)) as client:
             response = client.get("/api/v1/meta")
         assert response.status_code == 200
-        assert response.json()["theme"]["product_name"] == "KafkaPlay"
+        assert response.json()["theme"]["product_name"] == "Offsetscope"
 
     def test_meta_reports_flags(self, client: TestClient) -> None:
         body = client.get("/api/v1/meta").json()
@@ -194,7 +194,7 @@ class TestNoAuthMode:
             console_host="127.0.0.1",
             session_secret="",
             themes_dir=REPO_ROOT / "themes",
-            theme="kafkaplay",
+            theme="offsetscope",
             database_url=settings.database_url,
             clusters_file=settings.clusters_file,
             log_format="console",

@@ -22,11 +22,11 @@ Simplest case. Add the console to your existing `docker-compose.yml` and referen
 ```yaml
 services:
   console:
-    build: ../KafkaPlay
+    build: ../Offsetscope
     ports: ["127.0.0.1:8080:8080"]
     volumes:
       - ./config:/config:ro
-      - kafkaplay_data:/data
+      - offsetscope_data:/data
 ```
 
 ```yaml

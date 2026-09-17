@@ -7,7 +7,7 @@
 # The default is a SINGLE broker on purpose: three JVMs do not fit on a laptop
 # with 2 GB free, and most development does not need them.
 
-name: kafkaplay-dev
+name: offsetscope-dev
 
 x-kafka-common: &kafka-common
   image: apache/kafka:3.9.1
@@ -23,31 +23,31 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: kafkaplay-dev
+    container_name: offsetscope-dev
     restart: unless-stopped
     ports:
       - "${CONSOLE_BIND:-127.0.0.1}:${CONSOLE_PORT:-8080}:8080"
     environment:
-      APP_NAME: ${APP_NAME:-KafkaPlay}
-      THEME: ${THEME:-kafkaplay}
+      APP_NAME: ${APP_NAME:-Offsetscope}
+      THEME: ${THEME:-offsetscope}
       AUTH_MODE: ${AUTH_MODE:-local}
       SESSION_SECRET: ${SESSION_SECRET:-dev-only-secret-change-me-0123456789abcd}
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-kafkaplay-dev-password}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-offsetscope-dev-password}
       LOG_FORMAT: console
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       CLUSTERS_FILE: /config/clusters.yaml
     volumes:
-      - kafkaplay_dev_data:/data
+      - offsetscope_dev_data:/data
       - ./deploy/dev/clusters.dev.yaml:/config/clusters.yaml:ro
     depends_on:
       kafka:
         condition: service_healthy
-    networks: [kafkaplay]
+    networks: [offsetscope]
 
   kafka:
     <<: *kafka-common
-    container_name: kafkaplay-kafka-1
+    container_name: offsetscope-kafka-1
     environment:
       KAFKA_NODE_ID: "1"
       KAFKA_PROCESS_ROLES: "broker,controller"
@@ -67,11 +67,11 @@ services:
       KAFKA_HEAP_OPTS: "-Xmx512m -Xms256m"
     volumes:
       - kafka1_data:/var/lib/kafka/data
-    networks: [kafkaplay]
+    networks: [offsetscope]
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.9.1
-    container_name: kafkaplay-schema-registry
+    container_name: offsetscope-schema-registry
     depends_on:
       kafka:
         condition: service_healthy
@@ -87,13 +87,13 @@ services:
       timeout: 5s
       retries: 15
       start_period: 20s
-    networks: [kafkaplay]
+    networks: [offsetscope]
 
   seeder:
     build:
       context: ./seeder
       dockerfile: Dockerfile
-    container_name: kafkaplay-seeder
+    container_name: offsetscope-seeder
     restart: unless-stopped
     depends_on:
       kafka:
@@ -104,13 +104,13 @@ services:
       BOOTSTRAP_SERVERS: kafka:9092
       SCHEMA_REGISTRY_URL: http://schema-registry:8081
       EVENTS_PER_SECOND: ${SEED_RATE:-25}
-    networks: [kafkaplay]
+    networks: [offsetscope]
 
   # --- profile: cluster ----------------------------------------------------
   kafka-2:
     <<: *kafka-common
     profiles: [cluster]
-    container_name: kafkaplay-kafka-2
+    container_name: offsetscope-kafka-2
     environment:
       KAFKA_NODE_ID: "2"
       KAFKA_PROCESS_ROLES: "broker,controller"
@@ -127,12 +127,12 @@ services:
       KAFKA_HEAP_OPTS: "-Xmx512m -Xms256m"
     volumes:
       - kafka2_data:/var/lib/kafka/data
-    networks: [kafkaplay]
+    networks: [offsetscope]
 
   kafka-3:
     <<: *kafka-common
     profiles: [cluster]
-    container_name: kafkaplay-kafka-3
+    container_name: offsetscope-kafka-3
     environment:
       KAFKA_NODE_ID: "3"
       KAFKA_PROCESS_ROLES: "broker,controller"
@@ -149,13 +149,13 @@ services:
       KAFKA_HEAP_OPTS: "-Xmx512m -Xms256m"
     volumes:
       - kafka3_data:/var/lib/kafka/data
-    networks: [kafkaplay]
+    networks: [offsetscope]
 
   # --- profile: metrics ----------------------------------------------------
   prometheus:
     image: prom/prometheus:v3.7.3
     profiles: [metrics]
-    container_name: kafkaplay-prometheus
+    container_name: offsetscope-prometheus
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.retention.time=${PROM_RETENTION:-15d}
@@ -163,24 +163,24 @@ services:
     volumes:
       - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
-    networks: [kafkaplay]
+    networks: [offsetscope]
 
   kafka-exporter:
     image: danielqsj/kafka-exporter:v1.9.0
     profiles: [metrics]
-    container_name: kafkaplay-kafka-exporter
+    container_name: offsetscope-kafka-exporter
     command: ["--kafka.server=kafka:9092"]
     depends_on:
       kafka:
         condition: service_healthy
-    networks: [kafkaplay]
+    networks: [offsetscope]
 
 networks:
-  kafkaplay:
+  offsetscope:
     driver: bridge
 
 volumes:
-  kafkaplay_dev_data:
+  offsetscope_dev_data:
   kafka1_data:
   kafka2_data:
   kafka3_data:

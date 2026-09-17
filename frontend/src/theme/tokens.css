@@ -10,7 +10,7 @@
  *   --color-*  Tailwind's palette, mapped to the raw layer via @theme inline
  *              so `bg-brand`, `text-critical` etc. work in markup.
  *
- * The values below are the built-in fallback (the kafkaplay theme). They keep
+ * The values below are the built-in fallback (the offsetscope theme). They keep
  * the UI correct for the instant before /api/v1/meta resolves, and if that
  * request fails entirely.
  */

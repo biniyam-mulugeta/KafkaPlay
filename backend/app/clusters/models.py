@@ -137,7 +137,7 @@ class ClusterConfig(BaseModel):
     sasl: SaslConfig | None = None
     schema_registry: SchemaRegistryConfig | None = None
 
-    client_id: str = Field(default="kafkaplay")
+    client_id: str = Field(default="offsetscope")
     request_timeout_seconds: float | None = Field(default=None, gt=0)
 
     read_only: bool = Field(

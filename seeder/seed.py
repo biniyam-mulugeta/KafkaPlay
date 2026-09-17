@@ -61,7 +61,7 @@ TOPICS = [
 PAYMENT_SCHEMA = {
     "type": "record",
     "name": "Payment",
-    "namespace": "dev.kafkaplay",
+    "namespace": "dev.offsetscope",
     "fields": [
         {"name": "payment_id", "type": "string"},
         {"name": "amount_cents", "type": "long"},
@@ -157,7 +157,7 @@ def random_ip() -> str:
 
 
 def produce_forever() -> None:
-    producer = Producer({"bootstrap.servers": BOOTSTRAP, "client.id": "kafkaplay-seeder"})
+    producer = Producer({"bootstrap.servers": BOOTSTRAP, "client.id": "offsetscope-seeder"})
     schema_id = payment_schema_id()
     # A deliberately skewed key space so one partition runs hot and the
     # partition heatmap has something worth looking at.

@@ -13,7 +13,7 @@ from typing import Any
 
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
-_SALT = "kafkaplay.session.v1"
+_SALT = "offsetscope.session.v1"
 CSRF_HEADER = "X-CSRF-Token"
 # Methods that cannot change state, and so need no CSRF token.
 SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS", "TRACE"})

@@ -34,7 +34,7 @@ dev: ## Start the dev stack (PROFILE=cluster|metrics for extras)
 	$(DEV_COMPOSE) $(PROFILE_ARG) up -d --build
 	@echo
 	@echo "Console:  http://127.0.0.1:$${CONSOLE_PORT:-8080}"
-	@echo "Login:    admin / kafkaplay-dev-password"
+	@echo "Login:    admin / offsetscope-dev-password"
 
 .PHONY: dev-down
 dev-down: ## Stop the dev stack and remove its volumes
@@ -76,8 +76,8 @@ test-backend: ## Backend unit tests
 	cd backend && .venv/bin/python -m pytest -q
 
 .PHONY: test-integration
-test-integration: ## Backend integration tests (needs KAFKAPLAY_TEST_BOOTSTRAP)
-	cd backend && KAFKAPLAY_TEST_BOOTSTRAP=$${KAFKAPLAY_TEST_BOOTSTRAP:-localhost:9092} \
+test-integration: ## Backend integration tests (needs OFFSETSCOPE_TEST_BOOTSTRAP)
+	cd backend && OFFSETSCOPE_TEST_BOOTSTRAP=$${OFFSETSCOPE_TEST_BOOTSTRAP:-localhost:9092} \
 	  .venv/bin/python -m pytest -q -m integration
 
 .PHONY: test-frontend
@@ -100,4 +100,4 @@ format: ## Auto-format the backend
 
 .PHONY: build
 build: ## Build the production image
-	docker build -t kafkaplay:local .
+	docker build -t offsetscope:local .

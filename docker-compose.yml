@@ -1,4 +1,4 @@
-# KafkaPlay.
+# Offsetscope.
 #
 #   docker compose up -d --build
 #
@@ -14,8 +14,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: kafkaplay:local
-    container_name: kafkaplay
+    image: offsetscope:local
+    container_name: offsetscope
     restart: unless-stopped
 
     # Bound to localhost by default: nothing is exposed to your network until
@@ -33,8 +33,8 @@ services:
       KAFKA_CLUSTER_NAME: ${KAFKA_CLUSTER_NAME:-kafka}
 
       # --- Optional: appearance --------------------------------------------
-      APP_NAME: ${APP_NAME:-KafkaPlay}
-      THEME: ${THEME:-kafkaplay}
+      APP_NAME: ${APP_NAME:-Offsetscope}
+      THEME: ${THEME:-offsetscope}
       DEFAULT_LOCALE: ${DEFAULT_LOCALE:-en}
 
       # --- Optional: safety -------------------------------------------------
@@ -67,7 +67,7 @@ services:
     volumes:
       # Users, dashboards, alert rules, the audit log, sampled offsets, and
       # the generated session secret.
-      - kafkaplay_data:/data
+      - offsetscope_data:/data
       # Optional: declare clusters in a file instead of the UI. The directory
       # is created empty if it does not exist.
       - ./config:/config:ro
@@ -104,4 +104,4 @@ services:
 #     name: ${KAFKA_NETWORK:?set KAFKA_NETWORK to your existing network name}
 
 volumes:
-  kafkaplay_data:
+  offsetscope_data:

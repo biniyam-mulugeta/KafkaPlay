@@ -27,7 +27,7 @@ def settings_without_admin(tmp_path: Path, **overrides: object) -> Settings:
         "session_secret": "s" * 48,
         "admin_password": "",
         "themes_dir": REPO_ROOT / "themes",
-        "theme": "kafkaplay",
+        "theme": "offsetscope",
         "database_url": f"sqlite:///{tmp_path / 'signup.db'}",
         "clusters_file": tmp_path / "clusters.yaml",
         "log_format": "console",

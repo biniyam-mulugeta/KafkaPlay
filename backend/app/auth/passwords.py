@@ -54,4 +54,4 @@ def verify_password(password: str, password_hash: str | None) -> bool:
 
 
 # Generated once at import so timing stays comparable for unknown users.
-_DUMMY_HASH = bcrypt.hashpw(b"kafkaplay-dummy-password", bcrypt.gensalt(rounds=_DEFAULT_ROUNDS))
+_DUMMY_HASH = bcrypt.hashpw(b"offsetscope-dummy-password", bcrypt.gensalt(rounds=_DEFAULT_ROUNDS))

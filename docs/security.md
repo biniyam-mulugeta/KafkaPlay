@@ -2,7 +2,7 @@
 
 ## Threat model
 
-KafkaPlay is an operator tool. Anyone who can reach it and authenticate can read message data and, depending on role, change your cluster. Treat access to it as equivalent to broker credentials.
+Offsetscope is an operator tool. Anyone who can reach it and authenticate can read message data and, depending on role, change your cluster. Treat access to it as equivalent to broker credentials.
 
 The console never phones home. Outbound connections go only to the Kafka clusters, Schema Registry, Prometheus, and notification targets you configure.
 

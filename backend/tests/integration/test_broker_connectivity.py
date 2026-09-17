@@ -1,6 +1,6 @@
 """Integration tests against a real broker.
 
-They skip unless KAFKAPLAY_TEST_BOOTSTRAP points at a broker, so `make test`
+They skip unless OFFSETSCOPE_TEST_BOOTSTRAP points at a broker, so `make test`
 stays green for contributors with nothing running.
 
 The point of this module in M1 is to prove the connection path and capability
@@ -22,7 +22,7 @@ pytestmark = pytest.mark.integration
 
 @pytest.fixture
 def admin(bootstrap_servers: str) -> AdminClient:
-    return AdminClient({"bootstrap.servers": bootstrap_servers, "client.id": "kafkaplay-tests"})
+    return AdminClient({"bootstrap.servers": bootstrap_servers, "client.id": "offsetscope-tests"})
 
 
 def test_cluster_config_accepts_a_real_broker(bootstrap_servers: str) -> None:
@@ -37,7 +37,7 @@ def test_metadata_lists_at_least_one_broker(admin: AdminClient) -> None:
 
 
 def test_create_describe_and_delete_a_topic(admin: AdminClient) -> None:
-    name = f"kafkaplay-it-{uuid.uuid4().hex[:8]}"
+    name = f"offsetscope-it-{uuid.uuid4().hex[:8]}"
 
     created = admin.create_topics([NewTopic(name, num_partitions=2, replication_factor=1)])
     created[name].result(timeout=30)

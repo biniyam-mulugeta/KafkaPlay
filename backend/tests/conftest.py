@@ -19,8 +19,8 @@ TEST_ADMIN_PASSWORD = "correct-horse-battery"
 @pytest.fixture
 def settings(tmp_path: Path) -> Settings:
     return Settings(
-        app_name="KafkaPlay",
-        theme="kafkaplay",
+        app_name="Offsetscope",
+        theme="offsetscope",
         themes_dir=REPO_ROOT / "themes",
         auth_mode="local",
         session_secret=TEST_SESSION_SECRET,
@@ -54,10 +54,10 @@ def bootstrap_servers() -> str:
     """Live broker for integration tests, or skip.
 
     Integration tests never spin up a broker themselves; they use one supplied
-    via KAFKAPLAY_TEST_BOOTSTRAP so the suite stays green for contributors who
+    via OFFSETSCOPE_TEST_BOOTSTRAP so the suite stays green for contributors who
     have no broker at hand.
     """
-    value = os.environ.get("KAFKAPLAY_TEST_BOOTSTRAP")
+    value = os.environ.get("OFFSETSCOPE_TEST_BOOTSTRAP")
     if not value:
-        pytest.skip("KAFKAPLAY_TEST_BOOTSTRAP is not set; skipping integration test")
+        pytest.skip("OFFSETSCOPE_TEST_BOOTSTRAP is not set; skipping integration test")
     return value

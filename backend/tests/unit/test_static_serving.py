@@ -19,7 +19,7 @@ from app.config import Settings
 from app.main import create_app
 from tests.conftest import TEST_ADMIN_PASSWORD
 
-INDEX_HTML = "<!doctype html><title>KafkaPlay</title><div id='root'></div>"
+INDEX_HTML = "<!doctype html><title>Offsetscope</title><div id='root'></div>"
 
 
 @pytest.fixture
@@ -54,7 +54,7 @@ class TestSpaRouting:
     def test_root_serves_index(self, bundled_client: TestClient) -> None:
         response = bundled_client.get("/")
         assert response.status_code == 200
-        assert "KafkaPlay" in response.text
+        assert "Offsetscope" in response.text
 
     def test_deep_link_serves_index(self, bundled_client: TestClient) -> None:
         # Client-side routes must return the shell so the router can take over.

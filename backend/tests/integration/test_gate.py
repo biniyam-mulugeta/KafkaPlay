@@ -1,6 +1,6 @@
 """KafkaGate against a live broker.
 
-Runs whenever KAFKAPLAY_TEST_BOOTSTRAP is set. Skipped otherwise.
+Runs whenever OFFSETSCOPE_TEST_BOOTSTRAP is set. Skipped otherwise.
 
 These cover the paths that unit tests with fakes cannot: real metadata shapes,
 real offset semantics, and the capability differences between broker
@@ -40,7 +40,7 @@ def gate(bootstrap_servers: str) -> Iterator[KafkaGate]:
 @pytest.fixture
 def seeded_topic(bootstrap_servers: str) -> Iterator[str]:
     """A topic with a known message count, cleaned up afterwards."""
-    name = f"kafkaplay-it-{uuid.uuid4().hex[:8]}"
+    name = f"offsetscope-it-{uuid.uuid4().hex[:8]}"
     admin = AdminClient({"bootstrap.servers": bootstrap_servers})
     admin.create_topics([NewTopic(name, num_partitions=PARTITIONS, replication_factor=1)])[
         name
@@ -159,7 +159,7 @@ class TestConsumerGroupsAndLag:
     @pytest.fixture
     def committed_group(self, bootstrap_servers: str, seeded_topic: str) -> Iterator[str]:
         """A group that has consumed part of a topic, leaving real lag."""
-        group_id = f"kafkaplay-it-group-{uuid.uuid4().hex[:8]}"
+        group_id = f"offsetscope-it-group-{uuid.uuid4().hex[:8]}"
         consumer = Consumer(
             {
                 "bootstrap.servers": bootstrap_servers,

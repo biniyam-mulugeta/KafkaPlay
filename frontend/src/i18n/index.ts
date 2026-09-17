@@ -20,7 +20,7 @@ export const LOCALE_LABELS: Record<Locale, string> = {
   hu: 'Magyar',
 }
 
-const STORAGE_KEY = 'kafkaplay.locale'
+const STORAGE_KEY = 'offsetscope.locale'
 
 export function storedLocale(): Locale | null {
   try {

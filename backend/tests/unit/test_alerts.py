@@ -265,7 +265,7 @@ class TestWebhookSigning:
         assert sign(b'{"a":1}', "one") != sign(b'{"a":1}', "two")
 
     def test_header_name(self) -> None:
-        assert SIGNATURE_HEADER == "X-KafkaPlay-Signature"
+        assert SIGNATURE_HEADER == "X-Offsetscope-Signature"
 
 
 class TestNotifierConfiguration:

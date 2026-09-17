@@ -55,17 +55,17 @@ COPY locales/ ./locales/
 COPY --from=frontend /build/frontend/dist/ ./backend/static/
 
 # Run as a non-root user that owns only what it must write to.
-RUN groupadd --system --gid 10001 kafkaplay \
- && useradd --system --uid 10001 --gid kafkaplay --home /app --shell /usr/sbin/nologin kafkaplay \
+RUN groupadd --system --gid 10001 offsetscope \
+ && useradd --system --uid 10001 --gid offsetscope --home /app --shell /usr/sbin/nologin offsetscope \
  && mkdir -p /data /config \
- && chown -R kafkaplay:kafkaplay /app /data /config
+ && chown -R offsetscope:offsetscope /app /data /config
 
-USER kafkaplay
+USER offsetscope
 WORKDIR /app/backend
 
 ENV CONSOLE_HOST=0.0.0.0 \
     CONSOLE_PORT=8080 \
-    DATABASE_URL=sqlite:////data/kafkaplay.db \
+    DATABASE_URL=sqlite:////data/offsetscope.db \
     CLUSTERS_FILE=/config/clusters.yaml \
     THEMES_DIR=/app/themes \
     LOG_FORMAT=json

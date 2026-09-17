@@ -26,7 +26,7 @@ from app.store.models import AlertFiring, AlertSeverity, AlertState
 
 log = get_logger(__name__)
 
-SIGNATURE_HEADER = "X-KafkaPlay-Signature"
+SIGNATURE_HEADER = "X-Offsetscope-Signature"
 
 _SEVERITY_COLOURS = {
     AlertSeverity.INFO: "#1b5e9e",

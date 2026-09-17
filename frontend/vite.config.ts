@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // The dev server proxies to the backend so the browser sees one origin and
 // session cookies behave exactly as they do in production.
-const BACKEND = process.env.KAFKAPLAY_BACKEND ?? 'http://127.0.0.1:8080'
+const BACKEND = process.env.OFFSETSCOPE_BACKEND ?? 'http://127.0.0.1:8080'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],

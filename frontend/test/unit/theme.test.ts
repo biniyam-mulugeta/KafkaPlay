@@ -10,8 +10,8 @@ import {
 
 function theme(overrides: Partial<ThemeInfo> = {}): ThemeInfo {
   return {
-    name: 'kafkaplay',
-    product_name: 'KafkaPlay',
+    name: 'offsetscope',
+    product_name: 'Offsetscope',
     logo: null,
     favicon: null,
     colors: {
@@ -86,7 +86,7 @@ describe('colour mode preference', () => {
   })
 
   it('ignores a corrupt stored value', () => {
-    localStorage.setItem('kafkaplay.color-mode', 'chartreuse')
+    localStorage.setItem('offsetscope.color-mode', 'chartreuse')
     expect(resolveInitialMode()).toBe('light')
   })
 })

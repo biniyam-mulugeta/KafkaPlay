@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import kafkaplay from '../../../themes/kafkaplay/theme.json'
+import offsetscope from '../../../themes/offsetscope/theme.json'
 import neutral from '../../../themes/neutral/theme.json'
 
 /**
@@ -25,7 +25,7 @@ function ratio(a: string, b: string): number {
 
 // The imported JSON has a precise literal type; widen it via unknown so the
 // test can iterate tokens generically.
-const THEMES = { kafkaplay, neutral } as unknown as Record<
+const THEMES = { offsetscope, neutral } as unknown as Record<
   string,
   { colors: Record<string, Record<string, string>> }
 >

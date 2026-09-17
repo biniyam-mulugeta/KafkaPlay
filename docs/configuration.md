@@ -16,8 +16,8 @@ Everything is twelve-factor, so the same image runs unchanged in Docker, Compose
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `APP_NAME` | `KafkaPlay` | Product name in the UI and tab title |
-| `THEME` | `kafkaplay` | Directory under `THEMES_DIR` to load |
+| `APP_NAME` | `Offsetscope` | Product name in the UI and tab title |
+| `THEME` | `offsetscope` | Directory under `THEMES_DIR` to load |
 | `THEMES_DIR` | `/app/themes` | Where themes live; mount your own over this |
 | `DEFAULT_LOCALE` | `en` | `en` or `hu` |
 
@@ -118,7 +118,7 @@ Message payloads are never persisted, regardless of this setting. Revealing a ma
 |---|---|---|
 | `LOG_LEVEL` | `INFO` | |
 | `LOG_FORMAT` | `json` | `json` or `console` |
-| `DATABASE_URL` | `sqlite:////data/kafkaplay.db` | App state |
+| `DATABASE_URL` | `sqlite:////data/offsetscope.db` | App state |
 
 SQLite runs in WAL mode so the background sampler does not block API reads. Keep `/data` on a named volume. Credentials and tokens are redacted from logs by a processor, not by convention.
 

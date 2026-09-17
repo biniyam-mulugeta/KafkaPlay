@@ -134,7 +134,7 @@ class MessageScanner:
                 # No group.id would be rejected by librdkafka, but because we
                 # assign partitions manually and never commit, this group is
                 # never created on the broker.
-                "group.id": f"kafkaplay-scan-{int(time.time() * 1000)}",
+                "group.id": f"offsetscope-scan-{int(time.time() * 1000)}",
                 "enable.auto.commit": False,
                 "auto.offset.reset": "earliest",
                 "enable.partition.eof": True,

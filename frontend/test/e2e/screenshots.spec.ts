@@ -7,8 +7,8 @@ import { expect, test, type Page } from '@playwright/test'
  * the real UI: regenerate by running this against the dev stack.
  */
 
-const USERNAME = process.env.KAFKAPLAY_E2E_USER ?? 'admin'
-const PASSWORD = process.env.KAFKAPLAY_E2E_PASSWORD ?? 'kafkaplay-dev-password'
+const USERNAME = process.env.OFFSETSCOPE_E2E_USER ?? 'admin'
+const PASSWORD = process.env.OFFSETSCOPE_E2E_PASSWORD ?? 'offsetscope-dev-password'
 const OUT = '../docs/screenshots'
 
 const PAGES: [string, string][] = [
@@ -46,7 +46,7 @@ test.describe('screenshots', () => {
       await page.evaluate((target) => {
         document.documentElement.dataset.theme = target
         try {
-          localStorage.setItem('kafkaplay.color-mode', target)
+          localStorage.setItem('offsetscope.color-mode', target)
         } catch {
           // Storage may be blocked; the attribute alone is enough here.
         }

@@ -1,4 +1,4 @@
-# KafkaPlay
+# Offsetscope
 
 A self-hosted web console for operating **any** Apache Kafka cluster — self-managed, Confluent Cloud, Aiven, AWS MSK, Redpanda, or Azure Event Hubs.
 
@@ -12,7 +12,7 @@ Browse topics and messages, watch consumer lag over time, reset offsets safely, 
 
 Most Kafka UIs need Prometheus and a JMX exporter before they can draw a lag chart. Managed clusters rarely expose JMX at all, so those charts stay empty where you need them most.
 
-KafkaPlay ships a **built-in sampler**: it records consumer-group and log-end offsets into SQLite on a schedule. Lag history, lag velocity, estimated time-to-catch-up, throughput, and the partition heatmap all work out of the box, against any broker, with nothing else installed. Prometheus and JMX remain supported as an **optional** add-on for broker-level and replication metrics.
+Offsetscope ships a **built-in sampler**: it records consumer-group and log-end offsets into SQLite on a schedule. Lag history, lag velocity, estimated time-to-catch-up, throughput, and the partition heatmap all work out of the box, against any broker, with nothing else installed. Prometheus and JMX remain supported as an **optional** add-on for broker-level and replication metrics.
 
 It is also careful with your brokers: lag comes from the AdminClient rather than a shadow consumer, admin reads share a short TTL cache so ten open tabs cost one broker call, and message scans only run when you start one.
 
@@ -21,8 +21,8 @@ It is also careful with your brokers: lag comes from the AdminClient rather than
 ## Quick start
 
 ```bash
-git clone https://github.com/biniyam-mulugeta/KafkaPlay.git
-cd KafkaPlay
+git clone https://github.com/biniyam-mulugeta/Offsetscope.git
+cd Offsetscope
 docker compose up -d --build
 ```
 
@@ -54,7 +54,7 @@ CONSOLE_PORT=8090                     # if 8080 is taken
 make dev
 ```
 
-This starts a single-node KRaft broker, Schema Registry, and a seeder that produces to `orders`, `clickstream`, `app-logs`, `payments` (Avro), and `audit-trail` — including a consumer group that lags on purpose so the lag features have something to show. Log in as `admin` / `kafkaplay-dev-password`.
+This starts a single-node KRaft broker, Schema Registry, and a seeder that produces to `orders`, `clickstream`, `app-logs`, `payments` (Avro), and `audit-trail` — including a consumer group that lags on purpose so the lag features have something to show. Log in as `admin` / `offsetscope-dev-password`.
 
 ```bash
 make dev PROFILE=cluster   # 3 brokers with racks, for replication work
@@ -102,7 +102,7 @@ ss -ltnp | grep -E ':(9092|9093|9094)\b'
 
 **In the UI:** open **Settings → Add a cluster** and fill in:
 
-- **Name:** any short identifier you like, e.g. `local` or `production`. It can use letters, digits, `.`, `_` and `-`. It only labels the cluster inside KafkaPlay and does not have to match anything in Kafka.
+- **Name:** any short identifier you like, e.g. `local` or `production`. It can use letters, digits, `.`, `_` and `-`. It only labels the cluster inside Offsetscope and does not have to match anything in Kafka.
 - **Bootstrap servers:** the address from Step 1, e.g. `host.docker.internal:9094`. Separate several brokers with commas.
 - **Security:** `PLAINTEXT` for a local broker without authentication. Choose SASL/SSL and fill in the credentials for a secured cluster.
 - **Schema Registry URL** and **Read-only** are optional.
@@ -192,19 +192,19 @@ If **Test connection** fails or topics don't show up, run these checks from your
 ss -ltnp | grep -E ':(9092|9093|9094)\b'
 
 # 2. Can the console container open a TCP connection to the broker?
-docker exec kafkaplay python -c "import socket; socket.create_connection(('host.docker.internal', 9094), 5); print('TCP OK')"
+docker exec offsetscope python -c "import socket; socket.create_connection(('host.docker.internal', 9094), 5); print('TCP OK')"
 
 # 3. The same request the UI makes: which brokers and topics does Kafka return?
-docker exec kafkaplay python -c "
+docker exec offsetscope python -c "
 from confluent_kafka.admin import AdminClient
 md = AdminClient({'bootstrap.servers': 'host.docker.internal:9094'}).list_topics(timeout=10)
 print('brokers:', [(b.host, b.port) for b in md.brokers.values()])
 print('topics:', [t for t in md.topics if not t.startswith('__')])"
 
 # 4. Which clusters has the console saved from the UI?
-docker exec kafkaplay python -c "
+docker exec offsetscope python -c "
 import sqlite3
-rows = sqlite3.connect('/data/kafkaplay.db').execute('select name, bootstrap_servers from stored_clusters').fetchall()
+rows = sqlite3.connect('/data/offsetscope.db').execute('select name, bootstrap_servers from stored_clusters').fetchall()
 print(rows or 'no clusters saved')"
 ```
 
@@ -326,7 +326,7 @@ make lint       # ruff, mypy, eslint, tsc
 Integration tests need a broker and skip without one:
 
 ```bash
-KAFKAPLAY_TEST_BOOTSTRAP=localhost:9092 make test-integration
+OFFSETSCOPE_TEST_BOOTSTRAP=localhost:9092 make test-integration
 ```
 
 There is no hosted CI, so please run `make lint` and `make test` (and the integration tests, if you touched the Kafka layer) before opening a pull request.
