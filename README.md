@@ -66,7 +66,162 @@ make dev-down              # stop and delete volumes
 
 ## Connecting to your cluster
 
-Clusters are defined in `config/clusters.yaml`, with `${VAR}` substitution so secrets stay in `.env`:
+There are three ways to tell the console about a cluster. Pick one.
+
+| Method | Best for | How |
+|---|---|---|
+| **The UI** | Most people | **Settings → Add a cluster** (or the prompt shown when no cluster exists). Admins only. |
+| **One environment variable** | A single PLAINTEXT cluster | `KAFKA_BOOTSTRAP_SERVERS=...` in `.env` |
+| **`config/clusters.yaml`** | TLS/SASL, several clusters, config kept in git | See [below](#clustersyaml) |
+
+If the same name is defined twice, `clusters.yaml` wins over the UI, and the UI wins over the environment variable.
+
+### Step 1: Work out where your broker is
+
+The console runs **inside a container**. Inside a container, `localhost` means the container itself, not your machine, so `localhost:9092` never works. Which address to use depends on where Kafka runs:
+
+| Where Kafka runs | Bootstrap servers to use | Extra setup |
+|---|---|---|
+| On another server or a managed service | Its normal address, e.g. `broker.example.com:9092` | None |
+| Directly on the same machine (not in Docker) | `host.docker.internal:<port>` | A Docker listener on the broker, see [below](#kafka-installed-directly-on-this-machine) |
+| In a Docker container | `<container-name>:9092` | Put the console on the broker's network, see [below](#kafka-running-in-docker) |
+
+Not sure which case you're in? Run:
+
+```bash
+docker ps --format 'table {{.Names}}\t{{.Ports}}\t{{.Networks}}'
+```
+
+If no Kafka container is listed, Kafka is either installed directly on your machine or remote. To check whether it's on this machine:
+
+```bash
+ss -ltnp | grep -E ':(9092|9093|9094)\b'
+```
+
+### Step 2: Add the cluster
+
+**In the UI:** open **Settings → Add a cluster** and fill in:
+
+- **Name:** any short identifier you like, e.g. `local` or `production`. It can use letters, digits, `.`, `_` and `-`. It only labels the cluster inside KafkaPlay and does not have to match anything in Kafka.
+- **Bootstrap servers:** the address from Step 1, e.g. `host.docker.internal:9094`. Separate several brokers with commas.
+- **Security:** `PLAINTEXT` for a local broker without authentication. Choose SASL/SSL and fill in the credentials for a secured cluster.
+- **Schema Registry URL** and **Read-only** are optional.
+
+Click **Test connection**. It must report your brokers and topics before **Add cluster** is enabled, so a wrong address is caught here and not later as an empty topic list.
+
+**Or, without the UI,** add this to `.env` beside `docker-compose.yml` and restart:
+
+```bash
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:9094
+KAFKA_CLUSTER_NAME=local      # optional, defaults to "kafka"
+```
+
+```bash
+docker compose up -d
+```
+
+### Kafka installed directly on this machine
+
+This is the case that trips most people up, and it's usually not the address you typed but the one Kafka sends back.
+
+A client connects to the bootstrap address, and Kafka replies with the address it wants the client to use from then on, called its **advertised listener**. A downloaded Kafka advertises `localhost:9092`. The console reaches your broker, is told to use `localhost:9092`, connects to itself, and fails.
+
+The fix is a second listener just for Docker. Clients on your machine keep using `localhost:9092` as before.
+
+1. See your current settings (adjust the path to your Kafka directory):
+
+   ```bash
+   cd ~/kafka_2.13-4.3.1
+   grep -nE '^(listeners|advertised.listeners|listener.security.protocol.map|controller.listener.names)=' config/server.properties
+   ```
+
+2. Edit those lines in `config/server.properties` so they include a `DOCKER` listener. Keep the `CONTROLLER` entries your file already has:
+
+   ```properties
+   listeners=PLAINTEXT://:9092,DOCKER://:9094,CONTROLLER://:9093
+   advertised.listeners=PLAINTEXT://localhost:9092,DOCKER://host.docker.internal:9094
+   listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,DOCKER:PLAINTEXT
+   ```
+
+3. Restart Kafka:
+
+   ```bash
+   bin/kafka-server-stop.sh
+   bin/kafka-server-start.sh -daemon config/server.properties
+   ```
+
+4. Add the cluster with bootstrap servers **`host.docker.internal:9094`**.
+
+`docker-compose.yml` already maps `host.docker.internal` to your machine, so this works on plain Linux Docker as well as Docker Desktop.
+
+> **Docker Desktop on Windows with Kafka inside WSL:** here `host.docker.internal` points to Windows, not to WSL. Use your WSL IP address instead, in both `advertised.listeners` and the UI. Find it with `hostname -I | awk '{print $1}'`. It can change when WSL restarts. To check which Docker you have, run `docker info --format '{{.OperatingSystem}}'`: it prints `Docker Desktop` for Docker Desktop.
+
+### Kafka running in Docker
+
+A broker in a container is reachable by its container name, but only from containers on the same Docker network.
+
+1. Find the broker's network name:
+
+   ```bash
+   docker inspect <broker-container> -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{"\n"}}{{end}}'
+   ```
+
+2. Put it in `.env`:
+
+   ```bash
+   KAFKA_NETWORK=myproject_default
+   ```
+
+3. In `docker-compose.yml`, uncomment the `networks:` block under the service and the `networks:` block at the bottom, then run `docker compose up -d`.
+
+4. Add the cluster with bootstrap servers `<broker-container>:9092`.
+
+The broker must advertise its container name (e.g. `PLAINTEXT://kafka:9092`), not `localhost`. Check what it advertises with:
+
+```bash
+docker exec <broker-container> /opt/kafka/bin/kafka-broker-api-versions.sh \
+  --bootstrap-server localhost:9092 | head -3
+```
+
+### Troubleshooting a connection
+
+If **Test connection** fails or topics don't show up, run these checks from your machine. Replace `host.docker.internal:9094` with your own address.
+
+```bash
+# 1. Is Kafka listening? It should show 0.0.0.0 or *, not only 127.0.0.1.
+ss -ltnp | grep -E ':(9092|9093|9094)\b'
+
+# 2. Can the console container open a TCP connection to the broker?
+docker exec kafkaplay python -c "import socket; socket.create_connection(('host.docker.internal', 9094), 5); print('TCP OK')"
+
+# 3. The same request the UI makes: which brokers and topics does Kafka return?
+docker exec kafkaplay python -c "
+from confluent_kafka.admin import AdminClient
+md = AdminClient({'bootstrap.servers': 'host.docker.internal:9094'}).list_topics(timeout=10)
+print('brokers:', [(b.host, b.port) for b in md.brokers.values()])
+print('topics:', [t for t in md.topics if not t.startswith('__')])"
+
+# 4. Which clusters has the console saved from the UI?
+docker exec kafkaplay python -c "
+import sqlite3
+rows = sqlite3.connect('/data/kafkaplay.db').execute('select name, bootstrap_servers from stored_clusters').fetchall()
+print(rows or 'no clusters saved')"
+```
+
+| What you see | Meaning | Fix |
+|---|---|---|
+| #1 shows nothing on your port | Kafka isn't running, or didn't pick up the new config | Check `server.properties` and restart Kafka |
+| #1 shows only `127.0.0.1:<port>` | Kafka accepts connections from this machine only | Use `DOCKER://:9094` in `listeners`, with no host before the port |
+| #2 fails | The container can't reach the broker at all | Wrong address or port, a firewall, or the wrong Docker network |
+| #3 lists `localhost` as a broker | Kafka is advertising an address the container can't use | Fix `advertised.listeners`, see above |
+| #3 prints your topics, but the UI shows none | The connection is fine, the cluster just isn't registered | Add it in the UI with exactly the address used in #3 |
+| #4 shows an old address such as `localhost:9092` | A cluster was saved before Kafka was fixed | Remove it in **Settings** and add it again |
+
+After adding a cluster, reload the page. If you have several, pick the right one in the header's cluster switcher.
+
+### clusters.yaml
+
+For secured clusters or several at once, declare them in `config/clusters.yaml` (mounted read-only into the container). `${VAR}` references are filled from the container's environment, so secrets stay out of the file:
 
 ```yaml
 clusters:
@@ -83,11 +238,13 @@ clusters:
       ca_location: /config/certs/ca.pem
 ```
 
-Supported: PLAINTEXT, SSL/mTLS, SASL PLAIN, SCRAM-SHA-256/512, OAUTHBEARER (OIDC), and AWS MSK IAM. Several clusters can be listed and switched from the header.
+Put the values in `.env`, and pass each one through in `docker-compose.yml` under `environment:` (e.g. `KAFKA_PASSWORD: ${KAFKA_PASSWORD}`). Compose does not hand every `.env` variable to the container on its own. The console refuses to start if a referenced variable is missing, and names it.
 
-**Networking.** `docker-compose.yml` deliberately assumes nothing about your Docker network. Three setups are documented in [`docs/connections.md`](docs/connections.md): brokers in the same compose project, brokers on an existing external network, and brokers on the host or a remote host (including the `advertised.listeners` pitfalls that catch everyone).
+Supported: PLAINTEXT, SSL/mTLS, SASL PLAIN, SCRAM-SHA-256/512, OAUTHBEARER (OIDC), and AWS MSK IAM. Clusters defined here can't be removed from the UI.
 
-When a broker does not support an admin API — Redpanda and older ZooKeeper-mode clusters differ here — the console greys out that feature with an explanation instead of failing.
+Settings for Confluent Cloud, Aiven, AWS MSK, Redpanda and Azure Event Hubs are in [`docs/connections.md`](docs/connections.md).
+
+When a broker doesn't support an admin API (Redpanda and older ZooKeeper-mode clusters differ here), the console greys out that feature with an explanation instead of failing.
 
 ---
 
